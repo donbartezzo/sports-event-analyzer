@@ -1,53 +1,74 @@
-# 10x Astro Starter
+# Sports Event Analyzer
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+A comprehensive platform designed to provide detailed analysis and insights for various sports events. This application aims to empower users with interactive tools and visualizations to better understand sports performance and event outcomes.
+
+## Table of Contents
+
+- [Project Name](#project-name)
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Name
+
+**Sports Event Analyzer**
+
+## Project Description
+
+The Sports Event Analyzer is developed to analyze and visualize data from sports events. The platform provides detailed metrics, reports, and interactive dashboards to help users understand team performance, player statistics, and game dynamics. Designed with modern web technologies, it emphasizes responsiveness and user-friendly interfaces.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+- **Astro 5**: For building fast, content-focused websites.
+- **TypeScript 5**: Enabling type safety and modern JavaScript features.
+- **React 19**: For dynamic and interactive user interfaces.
+- **Tailwind CSS 4**: For rapid UI development with utility-first classes.
+- **Shadcn/ui**: A set of high-quality UI components for React.
 
 ## Prerequisites
 
 - Node.js v22.14.0 (as specified in `.nvmrc`)
 - npm (comes with Node.js)
 
-## Getting Started
+## Getting Started Locally
 
-1. Clone the repository:
+1. **Clone the repository**
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+   ```sh
+   git clone https://github.com/your-username/sports-event-analyzer.git
+   cd sports-event-analyzer
+   ```
 
-2. Install dependencies:
+2. **Install dependencies**
 
-```bash
-npm install
-```
+   Ensure you have the correct version of Node installed as specified in `.nvmrc`.
 
-3. Run the development server:
+   ```sh
+   npm install
+   ```
 
-```bash
-npm run dev
-```
+3. **Start the development server**
 
-4. Build for production:
+   ```sh
+   npm run dev
+   ```
 
-```bash
-npm run build
-```
+4. **Open your browser**
+
+   Visit [http://localhost:3000](http://localhost:3000) to view the project.
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- **`npm run dev`**: Starts the development server.
+- **`npm run build`**: Builds the project for production.
+- **`npm run start`**: Runs the compiled project in production mode.
+- **`npm run preview`**: Preview production build.
+- **`npm run lint`**: Run ESLint.
+- **`npm run lint:fix`**: Fix ESLint issues.
 
 ## Project Structure
 
@@ -85,10 +106,19 @@ AI instructions for GitHub Copilot are available in `.github/copilot-instruction
 
 The `.windsurfrules` file contains AI configuration for Windsurf.
 
-## Contributing
+## Project Scope
 
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+The project is designed to:
+
+- Analyze sports event data and generate performance reports.
+- Provide interactive dashboards for data visualization.
+- Enable users to explore detailed statistics for teams and players.
+- Serve as a platform for further development of sports analytics features.
+
+## Project Status
+
+The project is currently under active development. New features are being added regularly with ongoing improvements to performance and user experience.
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
