@@ -4,7 +4,7 @@ Manualne pisanie wysokiej jakości analizy wydarzeń sportowych jest czasochłon
 ### Najmniejszy zestaw funkcjonalności (MVP)
 - Prosty system kont użytkowników do przechowywania analiz
 - Tradycyjna rejestracja konta oraz logowania użytkownika poprzez email oraz hasło
-- Integracja z Openrouter.ai do komunikacja z modelami AI 
+- Integracja z groq.com do komunikacja z modelami AI 
 - Integracja z API www.api-football.com do pobierania wymaganych danych dla meczów piłki nożnej, w tym danych statystycznych i historycznych
 - Stworzenie pliku .env gdzie będą przechowywane dane do komunikacji z zewnętrznymi API
 - Listowanie najbliższych meczów piłki nożnej z uwzględnieniem: <event_data>nazwy drużyn, kraj, nazwa ligi, czas rozpoczęcia</event_data> oraz oznaczenie czy została już wygenerowana analiza dla tego wydarzenia

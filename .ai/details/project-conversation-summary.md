@@ -51,7 +51,7 @@
 
 <prd_planning_summary>
 1. Główne wymagania funkcjonalne:
-Projekt "Analiza Wydarzeń Sportowych" ma na celu automatyzację procesu generowania wysokiej jakości analiz meczów piłki nożnej (w późniejszym wersjach także inne dyscypliny sportowe). System integruje się z API www.api-football.com, pobiera dane statystyczne i historyczne, generuje analizy przy użyciu AI (przez Openrouter.ai) i zapisuje wyniki.
+Projekt "Analiza Wydarzeń Sportowych" ma na celu automatyzację procesu generowania wysokiej jakości analiz meczów piłki nożnej (w późniejszym wersjach także inne dyscypliny sportowe). System integruje się z API www.api-football.com, pobiera dane statystyczne i historyczne, generuje analizy przy użyciu AI (przez groq.com) i zapisuje wyniki.
 
 Kluczowe funkcjonalności obejmują:
 - Integracja z API www.api-football.com do pobierania danych o meczach piłki nożnej
