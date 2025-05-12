@@ -1,13 +1,7 @@
-// @TODO: TMP?
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from './types'
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
-
-export type { Database }
-export type Tables = Database['public']['Tables']
-export type Enums = Database['public']['Enums']
-export type SupabaseClient = typeof supabase
+export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
