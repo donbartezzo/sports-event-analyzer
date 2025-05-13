@@ -43,8 +43,8 @@ For each resource, CRUD endpoints are defined along with additional endpoints to
     ```json
     {
       "user_id": "string",
-      "analysis_type_id": "string",
-      "parameters": { "key": "value" }  // flexible JSONB payload
+      "analysis_type_id": 1,  // flexible JSONB payload
+      "parameters": { "key": "value" }  
     }
     ```
   - **Response**: JSON object of the created analysis record with status code 201.

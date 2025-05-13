@@ -37,10 +37,10 @@ export type AnalysisDTO = {
 };
 
 // Command used to create a new Analysis record via POST /analysis
-// Maps 'parameters' from the API payload to the 'parameters' field in the database.
+// Now, 'analysis_type_id' is expected to be a number from the start.
 export type CreateAnalysisCommand = {
   user_id: string;
-  analysis_type_id: number; // even if API payload uses string, we convert to number to match DB
+  analysis_type_id: number; // analysis_type_id is handled as number (from start)
   parameters: Json;
 };
 
