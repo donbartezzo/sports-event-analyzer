@@ -1,0 +1,350 @@
+openapi: 3.0.0
+info:
+  title: Sports Event Analyzer API
+  version: '1.0.0'
+  description: |
+    API for sports event analysis.
+    
+    Enables creating, managing, and viewing sports event analyses.
+  contact:
+    name: Support Team
+    email: support@sports-event-analyzer.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://api.sports-event-analyzer.com
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Analysis:
+      type: object
+      required:
+        - id
+        - user_id
+        - analysis_type_id
+        - created_at
+        - parameters
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique analysis identifier
+        user_id:
+          type: string
+          description: User identifier (from Supabase Auth)
+        analysis_type_id:
+          type: integer
+          description: Analysis type identifier
+        created_at:
+          type: string
+          format: date-time
+          description: Analysis creation date and time
+        parameters:
+          type: object
+          description: Analysis parameters in JSON format
+          additionalProperties: true
+
+    CreateAnalysisRequest:
+      type: object
+      required:
+        - user_id
+        - analysis_type_id
+        - parameters
+      properties:
+        user_id:
+          type: string
+          description: User identifier (from Supabase Auth)
+        analysis_type_id:
+          type: integer
+          description: Analysis type identifier
+        parameters:
+          type: object
+          description: Analysis parameters in JSON format
+          additionalProperties: true
+
+    UpdateAnalysisRequest:
+      type: object
+      properties:
+        analysis_type_id:
+          type: integer
+          description: Analysis type identifier (optional)
+        parameters:
+          type: object
+          description: Analysis parameters in JSON format (optional)
+          additionalProperties: true
+
+    PaginatedAnalysesResponse:
+      type: object
+      required:
+        - data
+        - total
+        - page
+        - limit
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Analysis'
+          description: List of analyses
+        total:
+          type: integer
+          description: Total number of available analyses
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Number of results per page
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Error details (optional)
+          additionalProperties: true
+
+paths:
+  /analysis:
+    post:
+      summary: Create a new analysis
+      description: |
+        Creates a new analysis for the specified user and analysis type.
+        Requires JWT authentication.
+      operationId: createAnalysis
+      tags:
+        - Analyses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalysisRequest'
+      responses:
+        '201':
+          description: Analysis created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Get list of analyses
+      description: |
+        Retrieves a list of analyses for the authenticated user.
+        Results are paginated and can be filtered by analysis type.
+        Requires JWT authentication.
+      operationId: getAnalyses
+      tags:
+        - Analyses
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of results per page (default 10, max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: analysis_type_id
+          in: query
+          description: Filter by analysis type
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of analyses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAnalysesResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analysis/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Analysis identifier
+        required: true
+        schema:
+          type: integer
+          format: int64
+
+    get:
+      summary: Get analysis details
+      description: |
+        Retrieves detailed information about a single analysis.
+        Requires JWT authentication.
+        Users can only access their own analyses.
+      operationId: getAnalysis
+      tags:
+        - Analyses
+      responses:
+        '200':
+          description: Analysis details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Analysis not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update analysis
+      description: |
+        Updates an existing analysis.
+        Requires JWT authentication.
+        Users can only update their own analyses.
+        Can update analysis type and/or parameters.
+      operationId: updateAnalysis
+      tags:
+        - Analyses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Analysis not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete analysis
+      description: |
+        Deletes an existing analysis.
+        Requires JWT authentication.
+        Users can only delete their own analyses.
+      operationId: deleteAnalysis
+      tags:
+        - Analyses
+      responses:
+        '204':
+          description: Analysis deleted successfully
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Analysis not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Analyses
+    description: Operations for managing analyses

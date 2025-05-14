@@ -8,7 +8,17 @@
   - For creation commands, certain fields (e.g. auto-generated fields) are omitted and data fields may be renamed for better clarity.
 */
 
-import type { Json } from './db/database.types';
+import type { Json, Database } from './db/database.types';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
+
+declare global {
+  namespace App {
+    interface Locals {
+      supabase: SupabaseClient<Database>;
+      user?: User;
+    }
+  }
+}
 
 // ---------------------
 // User DTO
@@ -47,6 +57,22 @@ export type CreateAnalysisCommand = {
 // Command used to update an existing Analysis record via PUT /analysis/{id}
 // All properties are optional to allow partial updates.
 export type UpdateAnalysisCommand = Partial<CreateAnalysisCommand>;
+
+// ---------------------
+// Analysis Pagination
+// ---------------------
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  analysis_type_id?: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 // ---------------------
 // Analysis Log DTO and Commands

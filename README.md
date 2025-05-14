@@ -9,6 +9,8 @@ A comprehensive platform designed to provide detailed analysis and insights for 
 - [Tech Stack](#tech-stack)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
 - [Project Scope](#project-scope)
 - [Project Status](#project-status)
 - [License](#license)
@@ -79,9 +81,24 @@ The Sports Event Analyzer is developed to analyze and visualize data from sports
 │   ├── pages/      # Astro pages
 │   │   └── api/    # API endpoints
 │   ├── components/ # UI components (Astro & React)
+│   ├── docs/       # API documentation
 │   └── assets/     # Static assets
 ├── public/         # Public assets
 ```
+
+## API Documentation
+
+The API documentation is available in OpenAPI/Swagger format in the `src/docs/openapi.yaml` file. 
+It contains detailed information about:
+- Available endpoints
+- Input and output data structures
+- Response codes
+- Authorization requirements
+- Usage examples
+
+To view the API documentation:
+1. Install the Swagger Viewer extension in your IDE or
+2. Use an online tool like [Swagger Editor](https://editor.swagger.io/)
 
 ## AI Development Support
 
