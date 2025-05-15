@@ -34,11 +34,9 @@ Ręczne przygotowywanie analiz meczów piłkarskich jest czasochłonne i wymaga 
 ## 5. Historyjki użytkowników
 
 US-001
-Tytuł: Rejestracja i logowanie użytkownika
-Opis: Jako nowy użytkownik chcę móc zarejestrować się przy użyciu adresu email i hasła, a jako zarejestrowany użytkownik mieć możliwość logowania, aby uzyskać dostęp do systemu.
+Tytuł: Logowanie użytkownika
+Opis: Jako użytkownik chcę móc zalogować się do systemu, aby uzyskać dostęp do systemu.
 Kryteria akceptacji:
-- Użytkownik rejestruje się poprzez podanie adresu email i hasła.
-- Dane użytkownika (ID, email, hasło) są poprawnie przechowywane.
 - Użytkownik może się zalogować, a system autentykuje dane.
 
 US-002
