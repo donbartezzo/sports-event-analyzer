@@ -1,0 +1,73 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+
+const stats = [
+  {
+    title: "Total Analyses",
+    value: "0",
+    description: "Total number of analyses performed",
+  },
+  {
+    title: "Recent Events",
+    value: "0",
+    description: "Events analyzed in the last 30 days",
+  },
+  {
+    title: "Analysis Types",
+    value: "3",
+    description: "Available types of analysis",
+  },
+];
+---
+
+<DashboardLayout title="Dashboard - Sports Event Analyzer">
+  <div class="flex-1 space-y-4">
+    <div class="flex items-center justify-between space-y-2">
+      <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
+    </div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {
+        stats.map((stat) => (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-2xl font-bold">{stat.value}</div>
+              <p class="text-xs text-muted-foreground">
+                {stat.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))
+      }
+    </div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <Card class="col-span-4">
+        <CardHeader>
+          <CardTitle>Recent Analyses</CardTitle>
+          <CardDescription>
+            Your most recent analysis results
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p class="text-sm text-muted-foreground">No analyses yet</p>
+        </CardContent>
+      </Card>
+      <Card class="col-span-3">
+        <CardHeader>
+          <CardTitle>Activity</CardTitle>
+          <CardDescription>
+            Your recent activity
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p class="text-sm text-muted-foreground">No recent activity</p>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</DashboardLayout>

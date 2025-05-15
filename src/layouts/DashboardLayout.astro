@@ -1,0 +1,29 @@
+---
+import Layout from './Layout.astro';
+import { UserNav } from '../components/dashboard/UserNav';
+import { MainNav } from '../components/dashboard/MainNav';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="flex min-h-screen flex-col">
+    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div class="container flex h-14 items-center">
+        <MainNav client:load />
+        <div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <UserNav client:load />
+        </div>
+      </div>
+    </header>
+    <div class="flex-1">
+      <div class="container grid items-start gap-8 py-8">
+        <slot />
+      </div>
+    </div>
+  </div>
+</Layout>
