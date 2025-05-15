@@ -16,14 +16,17 @@ interface Props {
 }
 
 export function UserNav({ initialUser }: Props) {
-  const [user, setUser] = useState<User>(initialUser);
+  const [user, setUser] = useState<User | null>(initialUser);
   const { supabase } = useSupabase();
 
+  // Efekt nasłuchujący na zmiany stanu użytkownika
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+      } else if (session?.user) {
         setUser(session.user);
       }
     });
@@ -33,9 +36,34 @@ export function UserNav({ initialUser }: Props) {
     };
   }, [supabase]);
 
+  // Efekt obsługujący przekierowanie po wylogowaniu
+  useEffect(() => {
+    if (user === null) {
+      window.location.href = '/login';
+    }
+  }, [user]);
+
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
+    try {
+      setUser(null); // Natychmiast czyścimy stan użytkownika
+      
+      // Wywołujemy endpoint wylogowania, który wyczyści sesję po stronie serwera
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Błąd podczas wylogowywania');
+      }
+
+      // Przekierowanie zostanie obsłużone przez endpoint
+    } catch (error) {
+      console.error('Błąd wylogowania:', error);
+      window.location.href = '/login';
+    }
   };
 
   if (!user) return null;

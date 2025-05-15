@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Alert, AlertDescription } from '../ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { loginSchema, type LoginFormData } from '../../lib/validations/auth';
 
 export default function LoginForm() {
@@ -37,7 +37,8 @@ export default function LoginForm() {
         throw new Error(error);
       }
 
-      // Przekierowanie zostanie obsłużone przez endpoint
+      // Przekierowanie na dashboard
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas logowania');
     } finally {
