@@ -1,11 +1,10 @@
 ---
-import { getSupabase } from '../lib/supabase/server';
+const logoutUrl = new URL('/api/auth/logout', Astro.url);
+const response = await fetch(logoutUrl, {
+  method: 'POST',
+});
 
-const supabase = getSupabase();
-
-// Sign out and redirect to login
-const { error } = await supabase.auth.signOut();
-if (!error) {
+if (response.ok) {
   return Astro.redirect('/login');
 }
 ---

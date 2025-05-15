@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { newPasswordSchema, type NewPasswordFormData } from '../../lib/validations/auth';
 
 export default function NewPasswordForm() {
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -22,16 +22,42 @@ export default function NewPasswordForm() {
 
   const password = watch('password');
 
+  const onSubmit = async (data: NewPasswordFormData) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/auth/new-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: data.password }),
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error);
+      }
+
+      // Przekierowanie zostanie obsłużone przez endpoint
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas zmiany hasła');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="grid gap-6">
-      <form onSubmit={handleSubmit(() => {})}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             <Label htmlFor="password">Nowe hasło</Label>
             <Input
               id="password"
               type="password"
-              placeholder="********"
+              autoComplete="new-password"
               disabled={isLoading}
               {...register('password')}
             />
@@ -41,12 +67,12 @@ export default function NewPasswordForm() {
               </p>
             )}
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
             <Input
               id="confirmPassword"
               type="password"
-              placeholder="********"
+              autoComplete="new-password"
               disabled={isLoading}
               {...register('confirmPassword', {
                 validate: (value) =>
@@ -59,20 +85,13 @@ export default function NewPasswordForm() {
               </p>
             )}
           </div>
-          {status === 'error' && (
+          {error && (
             <Alert variant="destructive">
-              <AlertDescription>Nie udało się zmienić hasła</AlertDescription>
-            </Alert>
-          )}
-          {status === 'success' && (
-            <Alert>
-              <AlertDescription>
-                Hasło zostało zmienione. Możesz się teraz zalogować.
-              </AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Zapisywanie...' : 'Zapisz nowe hasło'}
+            {isLoading ? 'Aktualizowanie hasła...' : 'Zaktualizuj hasło'}
           </Button>
         </div>
       </form>

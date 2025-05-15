@@ -6,12 +6,11 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
 import { resetPasswordSchema, type ResetPasswordFormData } from '../../lib/validations/auth';
-import { useSupabase } from '../../lib/hooks/useSupabase';
 
 export default function ResetPasswordForm() {
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { supabase } = useSupabase();
 
   const {
     register,
@@ -24,19 +23,26 @@ export default function ResetPasswordForm() {
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
       setIsLoading(true);
-      setStatus('idle');
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/reset-password/confirm`,
+      setError(null);
+      setSuccess(null);
+
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      if (error) {
-        throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error);
       }
 
-      setStatus('success');
+      setSuccess(result.message);
     } catch (err) {
-      setStatus('error');
+      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas resetowania hasła');
     } finally {
       setIsLoading(false);
     }
@@ -64,20 +70,18 @@ export default function ResetPasswordForm() {
               </p>
             )}
           </div>
-          {status === 'error' && (
+          {error && (
             <Alert variant="destructive">
-              <AlertDescription>Failed to send reset password email</AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {status === 'success' && (
+          {success && (
             <Alert>
-              <AlertDescription>
-                If an account exists with that email, we've sent a password reset link
-              </AlertDescription>
+              <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send Reset Link'}
+            {isLoading ? 'Wysyłanie linku...' : 'Wyślij link resetujący'}
           </Button>
         </div>
       </form>

@@ -6,12 +6,10 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
 import { loginSchema, type LoginFormData } from '../../lib/validations/auth';
-import { useSupabase } from '../../lib/hooks/useSupabase';
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { supabase } = useSupabase();
 
   const {
     register,
@@ -26,18 +24,22 @@ export default function LoginForm() {
       setIsLoading(true);
       setError(null);
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      if (signInError) {
-        throw signInError;
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error);
       }
 
-      // Redirect will be handled by Supabase auth listener in the root layout
+      // Przekierowanie zostanie obsłużone przez endpoint
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in');
+      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas logowania');
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +68,7 @@ export default function LoginForm() {
             )}
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Hasło</Label>
             <Input
               id="password"
               type="password"
@@ -86,7 +88,7 @@ export default function LoginForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Logowanie...' : 'Zaloguj się'}
           </Button>
         </div>
       </form>
