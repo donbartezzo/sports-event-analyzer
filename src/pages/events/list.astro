@@ -1,8 +1,10 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { EventsListWrapper } from '../../components/events/EventsListWrapper';
+import { Button } from '@/components/ui/button';
 import type { Event } from '../../types';
 
+const { user } = Astro.locals;
 const events: Event[] = [
   {
     id: '1',
@@ -23,9 +25,19 @@ const events: Event[] = [
 ];
 ---
 
-<Layout title="Events List">
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Events List</h1>
-    <EventsListWrapper events={events} client:only="react" />
-  </main>
-</Layout>
+<DashboardLayout title="Events - Sports Event Analyzer">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h3 class="text-lg font-medium">Events</h3>
+      <p class="text-sm text-muted-foreground">
+        Browse and analyze sports events.
+      </p>
+    </div>
+    <Button variant="default">
+      <a href="/events/new">Add Event</a>
+    </Button>
+  </div>
+  <div class="rounded-md border">
+    <EventsListWrapper events={events} client:load />
+  </div>
+</DashboardLayout>

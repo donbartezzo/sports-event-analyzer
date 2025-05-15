@@ -10,27 +10,29 @@ interface Props {
 const { title } = Astro.props;
 const { user } = Astro.locals;
 
-user
-
 if (!user) {
   return Astro.redirect('/login');
 }
 ---
 
 <Layout title={title}>
-  <div class="flex min-h-screen flex-col">
-    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="container flex h-14 items-center">
-        <MainNav client:load />
-        <div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <UserNav client:load initialUser={user} />
+  <div class="flex min-h-screen flex-col bg-muted/10">
+    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div class="mx-auto w-full max-w-screen-xl px-4 md:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <MainNav client:load />
+          <div class="flex items-center space-x-4">
+            <UserNav client:load initialUser={user} />
+          </div>
         </div>
       </div>
     </header>
-    <div class="flex-1">
-      <div class="container grid items-start gap-8 py-8">
-        <slot />
+    <main class="flex-1 py-6 md:py-8">
+      <div class="mx-auto w-full max-w-screen-xl px-4 md:px-6 lg:px-8">
+        <div class="rounded-lg border bg-card p-6 shadow-sm">
+          <slot />
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 </Layout>
