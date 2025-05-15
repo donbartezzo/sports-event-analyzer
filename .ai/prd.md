@@ -8,7 +8,7 @@ Ręczne przygotowywanie analiz meczów piłkarskich jest czasochłonne i wymaga 
 
 ## 3. Wymagania funkcjonalne
 1. Integracja z API www.api-football.com do pobierania danych statystycznych i historycznych dotyczących meczów piłki nożnej.
-2. Rejestracja użytkowników oraz logowanie przy użyciu adresu email i hasła.
+2. Logowanie użytkowników przy użyciu adresu email i hasła.
 3. Przechowywanie podstawowych danych użytkownika, tj. ID, email oraz hasło.
 4. Utworzenie pliku .env do przechowywania danych konfiguracyjnych i kluczy API.
 5. Listowanie nadchodzących meczów piłki nożnej (maksimum 100 pozycji) z informacjami takimi jak nazwy drużyn, kraj, nazwa ligi i czas rozpoczęcia; lista nie będzie automatycznie odświeżana ani filtrowana przez użytkownika.
@@ -74,9 +74,9 @@ Kryteria akceptacji:
 
 US-006
 Tytuł: Bezpieczny dostęp do systemu
-Opis: Jako użytkownik chcę mieć pewność, że dostęp do systemu jest bezpieczny, a moje dane są chronione podczas rejestracji, logowania i użytkowania aplikacji.
+Opis: Jako użytkownik chcę mieć pewność, że dostęp do systemu jest bezpieczny, a moje dane są chronione podczas logowania i użytkowania aplikacji.
 Kryteria akceptacji:
-- Proces rejestracji i logowania odbywa się przez bezpieczne połączenie (HTTPS).
+- Proces logowania odbywa się przez bezpieczne połączenie (HTTPS).
 - Hasła są przechowywane w sposób zaszyfrowany.
 - System nie wymaga dodatkowej weryfikacji adresu email, ale zapewnia podstawowy poziom bezpieczeństwa poprzez autentykację email/hasło.
 
@@ -85,4 +85,4 @@ Kryteria akceptacji:
 2. Mniej niż 10% analiz generuje się w czasie krótszym niż 1 minuta.
 3. Wersja MVP obsługuje do 10 zarejestrowanych użytkowników oraz do 100 analiz generowanych dziennie.
 4. Użytkownik otrzymuje jasny i czytelny komunikat o niedostępności danych w przypadku problemów z API, a incydenty te są dokładnie rejestrowane w logach.
-5. Proces rejestracji, logowania oraz resetowania hasła przebiega sprawnie, zapewniając bezpieczny dostęp do systemu.
+5. Proces logowania oraz resetowania hasła przebiega sprawnie, zapewniając bezpieczny dostęp do systemu.
