@@ -2,6 +2,13 @@
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 
+// Ensure user is authenticated
+const { user } = Astro.locals;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
 const stats = [
   {
     title: "Total Analyses",

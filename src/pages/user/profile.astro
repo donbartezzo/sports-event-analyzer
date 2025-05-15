@@ -2,6 +2,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { ProfileForm } from '../../components/user/ProfileForm';
 import { Separator } from '../../components/ui/separator';
+
+const { user } = Astro.locals;
 ---
 
 <DashboardLayout title="Profile - Sports Event Analyzer">
@@ -13,6 +15,6 @@ import { Separator } from '../../components/ui/separator';
       </p>
     </div>
     <Separator />
-    <ProfileForm client:load />
+    <ProfileForm client:load initialUser={user} />
   </div>
 </DashboardLayout>

@@ -6,19 +6,31 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Button } from '../ui/button';
+} from '../../components/ui/dropdown-menu';
+import { Button } from '../../components/ui/button';
 import { useSupabase } from '../../lib/hooks/useSupabase';
+import type { User } from '@supabase/supabase-js';
 
-export function UserNav() {
-  const [user, setUser] = useState<{ email: string } | null>(null);
+interface Props {
+  initialUser: User;
+}
+
+export function UserNav({ initialUser }: Props) {
+  const [user, setUser] = useState<User>(initialUser);
   const { supabase } = useSupabase();
 
   useEffect(() => {
-    const { data: { user } } = supabase.auth.getUser();
-    if (user) {
-      setUser({ email: user.email || '' });
-    }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const handleSignOut = async () => {

@@ -17,8 +17,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { profileSchema, type ProfileFormData } from '@/lib/validations/profile';
 import { useSupabase } from '@/lib/hooks/useSupabase';
 import type { Database } from '@/types/database';
+import type { User } from '@supabase/supabase-js';
 
-export function ProfileForm() {
+interface Props {
+  initialUser: User;
+}
+
+export function ProfileForm({ initialUser }: Props) {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isLoading, setIsLoading] = useState(false);
   const { supabase } = useSupabase();
@@ -40,18 +45,18 @@ export function ProfileForm() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (initialUser) {
         // Load user profile from Supabase
         const { data: profile } = await supabase
           .from('profiles')
           .select()
-          .eq('id', user.id)
+          .eq('id', initialUser.id)
           .single();
+
+          setValue('email', initialUser.email || '');
 
         if (profile) {
           setValue('fullName', profile.full_name || '');
-          setValue('email', user.email || '');
           setValue('bio', profile.bio || '');
           const analysisType = profile.preferred_analysis_type as 'basic' | 'advanced' | 'expert' | null;
           setValue('preferredAnalysisType', analysisType || 'basic');
@@ -71,14 +76,13 @@ export function ProfileForm() {
       setIsLoading(true);
       setStatus('idle');
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!initialUser) throw new Error('No user found');
 
       // Update profile in Supabase
       const { error } = await supabase
         .from('profiles')
         .upsert<Database['public']['Tables']['profiles']['Insert']>({
-          id: user.id,
+          id: initialUser.id,
           full_name: data.fullName,
           bio: data.bio,
           preferred_analysis_type: data.preferredAnalysisType,
