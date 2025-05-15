@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
-import { Checkbox } from '../ui/checkbox';
-import { Alert, AlertDescription } from '../ui/alert';
-import { profileSchema, type ProfileFormData } from '../../lib/validations/profile';
-import { useSupabase } from '../../lib/hooks/useSupabase';
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { profileSchema, type ProfileFormData } from '@/lib/validations/profile';
+import { useSupabase } from '@/lib/hooks/useSupabase';
+import type { Database } from '@/types/database';
 
 export function ProfileForm() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -44,15 +45,16 @@ export function ProfileForm() {
         // Load user profile from Supabase
         const { data: profile } = await supabase
           .from('profiles')
-          .select('*')
+          .select()
           .eq('id', user.id)
           .single();
 
         if (profile) {
-          setValue('fullName', profile.full_name);
+          setValue('fullName', profile.full_name || '');
           setValue('email', user.email || '');
-          setValue('bio', profile.bio);
-          setValue('preferredAnalysisType', profile.preferred_analysis_type);
+          setValue('bio', profile.bio || '');
+          const analysisType = profile.preferred_analysis_type as 'basic' | 'advanced' | 'expert' | null;
+          setValue('preferredAnalysisType', analysisType || 'basic');
           setValue('notifications', {
             email: profile.email_notifications,
             push: profile.push_notifications,
@@ -75,7 +77,7 @@ export function ProfileForm() {
       // Update profile in Supabase
       const { error } = await supabase
         .from('profiles')
-        .upsert({
+        .upsert<Database['public']['Tables']['profiles']['Insert']>({
           id: user.id,
           full_name: data.fullName,
           bio: data.bio,
@@ -146,7 +148,7 @@ export function ProfileForm() {
           <Label htmlFor="preferredAnalysisType">Preferred Analysis Type</Label>
           <Select
             disabled={isLoading}
-            onValueChange={(value) => setValue('preferredAnalysisType', value as any)}
+            onValueChange={(value: string) => setValue('preferredAnalysisType', value as 'basic' | 'advanced' | 'expert')}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select analysis type" />
@@ -166,8 +168,8 @@ export function ProfileForm() {
               <Checkbox
                 id="emailNotifications"
                 disabled={isLoading}
-                onCheckedChange={(checked) => 
-                  setValue('notifications.email', checked as boolean)
+                onCheckedChange={(checked: boolean) => 
+                  setValue('notifications.email', checked)
                 }
               />
               <Label htmlFor="emailNotifications" className="text-sm font-normal">
@@ -178,8 +180,8 @@ export function ProfileForm() {
               <Checkbox
                 id="pushNotifications"
                 disabled={isLoading}
-                onCheckedChange={(checked) => 
-                  setValue('notifications.push', checked as boolean)
+                onCheckedChange={(checked: boolean) => 
+                  setValue('notifications.push', checked)
                 }
               />
               <Label htmlFor="pushNotifications" className="text-sm font-normal">
