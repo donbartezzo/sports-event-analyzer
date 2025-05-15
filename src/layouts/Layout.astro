@@ -1,11 +1,22 @@
 ---
 import "../styles/global.css";
+import { createClient } from '@supabase/supabase-js';
 
 interface Props {
   title?: string;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { title = "Sports Event Analyzer" } = Astro.props;
+
+// Create Supabase client
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 ---
 
 <!doctype html>
@@ -19,6 +30,11 @@ const { title = "10x Astro Starter" } = Astro.props;
   </head>
   <body>
     <slot />
+    <script define:vars={{ supabaseUrl, supabaseAnonKey }}>
+      // Initialize Supabase client in the browser
+      import { createClient } from '@supabase/supabase-js';
+      window.supabase = createClient(supabaseUrl, supabaseAnonKey);
+    </script>
   </body>
 </html>
 
