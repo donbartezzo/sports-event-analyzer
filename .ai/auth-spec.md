@@ -5,16 +5,16 @@
 ### 1.1. Struktura stron i komponentów
 
 #### Strony Astro (server-side)
-- `/src/pages/auth/login.astro` - strona logowania
-- `/src/pages/auth/reset-password.astro` - strona inicjacji resetowania hasła
-- `/src/pages/auth/new-password.astro` - strona ustawiania nowego hasła
-- `/src/pages/auth/logout.astro` - strona wylogowania (przekierowanie)
+- `/src/pages/login.astro` - strona logowania
+- `/src/pages/reset-password.astro` - strona inicjacji resetowania hasła
+- `/src/pages/new-password.astro` - strona ustawiania nowego hasła
+- `/src/pages/logout.astro` - strona wylogowania (przekierowanie)
 
 #### Komponenty React (client-side)
-- `/src/components/auth/LoginForm.tsx` - formularz logowania
-- `/src/components/auth/ResetPasswordForm.tsx` - formularz resetowania hasła
-- `/src/components/auth/NewPasswordForm.tsx` - formularz nowego hasła
-- `/src/components/auth/AuthGuard.tsx` - komponent zabezpieczający strony wymagające autentykacji
+- `/src/components/LoginForm.tsx` - formularz logowania
+- `/src/components/ResetPasswordForm.tsx` - formularz resetowania hasła
+- `/src/components/NewPasswordForm.tsx` - formularz nowego hasła
+- `/src/components/AuthGuard.tsx` - komponent zabezpieczający strony wymagające autentykacji
 
 #### Layouty
 - `/src/layouts/AuthLayout.astro` - layout dla stron autoryzacji (logowanie, reset hasła)

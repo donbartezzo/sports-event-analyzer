@@ -1,0 +1,17 @@
+---
+import { getSupabase } from '../lib/supabase/server';
+
+const supabase = getSupabase();
+
+// Sign out and redirect to login
+const { error } = await supabase.auth.signOut();
+if (!error) {
+  return Astro.redirect('/login');
+}
+---
+
+<div class="flex min-h-screen items-center justify-center">
+  <p class="text-center text-muted-foreground">
+    Wylogowywanie...
+  </p>
+</div>
