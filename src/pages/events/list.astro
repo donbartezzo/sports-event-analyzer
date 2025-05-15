@@ -1,0 +1,31 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { EventsListWrapper } from '../../components/events/EventsListWrapper';
+import type { Event } from '../../types';
+
+const events: Event[] = [
+  {
+    id: '1',
+    participantA: 'Real Madrid',
+    participantB: 'Barcelona',
+    country: 'Spain',
+    league: 'La Liga',
+    startTime: '2024-03-20T20:00:00Z',
+  },
+  {
+    id: '2',
+    participantA: 'Manchester City',
+    participantB: 'Liverpool',
+    country: 'England',
+    league: 'Premier League',
+    startTime: '2024-03-21T15:00:00Z',
+  },
+];
+---
+
+<Layout title="Events List">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Events List</h1>
+    <EventsListWrapper events={events} client:only="react" />
+  </main>
+</Layout>

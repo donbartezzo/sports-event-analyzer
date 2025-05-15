@@ -32,6 +32,19 @@ export type UserDTO = {
 };
 
 // ---------------------
+// Event DTO
+// ---------------------
+// Represents a sports event that can be analyzed
+export interface Event {
+  id: string;
+  participantA: string;
+  participantB: string;
+  country: string;
+  league: string;
+  startTime: string;
+}
+
+// ---------------------
 // Analysis DTO and Commands
 // ---------------------
 // The AnalysisDTO maps directly to the analysis table in the database.
