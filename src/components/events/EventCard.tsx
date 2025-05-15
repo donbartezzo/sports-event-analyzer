@@ -18,7 +18,7 @@ export const EventCard = ({ event }: EventCardProps) => {
   };
 
   return (
-    <Link to={`/events/${event.id}`}>
+    <Link to={`/event/card/${event.id}`}>
       <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
         <CardHeader>
           <h3 className="text-lg font-semibold">
