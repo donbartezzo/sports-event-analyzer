@@ -1,0 +1,59 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { Button } from '@/components/ui/button';
+import { AnalysesTable } from '@/components/analyses/AnalysesTable';
+
+// Przykładowe dane - docelowo będą pobierane z bazy
+const analyses = [
+  {
+    id: '1',
+    title: 'Real Madrid vs Barcelona Analysis',
+    status: 'completed',
+    type: 'Match Analysis',
+    createdAt: '2024-03-20T20:00:00Z',
+  },
+  {
+    id: '2',
+    title: 'Manchester City Performance Review',
+    status: 'in_progress',
+    type: 'Team Analysis',
+    createdAt: '2024-03-21T15:00:00Z',
+  },
+  {
+    id: '3',
+    title: 'Premier League Season Stats',
+    status: 'failed',
+    type: 'League Analysis',
+    createdAt: '2024-03-19T10:00:00Z',
+  },
+] as const;
+
+const { user } = Astro.locals;
+---
+
+<DashboardLayout title="Analyses - Sports Event Analyzer">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h3 class="text-lg font-medium">Analyses</h3>
+      <p class="text-sm text-muted-foreground">
+        View and manage your sports event analyses.
+      </p>
+    </div>
+    <Button variant="default">
+      <a href="/analyses/new">New Analysis</a>
+    </Button>
+  </div>
+
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex gap-2">
+        <Button variant="outline" size="sm">All</Button>
+        <Button variant="ghost" size="sm">Completed</Button>
+        <Button variant="ghost" size="sm">In Progress</Button>
+        <Button variant="ghost" size="sm">Failed</Button>
+      </div>
+    </div>
+
+    <AnalysesTable client:load analyses={analyses} />
+  </div>
+</DashboardLayout>
