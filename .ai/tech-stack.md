@@ -18,3 +18,8 @@ AI - Komunikacja z modelami przez usługę groq.com:
 CI/CD i Hosting:
 - Github Actions do tworzenia pipeline’ów CI/CD
 - www.mydevil.net do hostowania aplikacji
+
+Testy:
+- Testy jednostkowe: Vitest, @testing-library/react, @testing-library/dom, astro/test
+- Testy E2E: Playwright (UI + API)
+- Dodatkowo: MSW (mocki API/AI), ESLint, Prettier, TypeScript (`tsc --noEmit`), axe-core/Lighthouse (a11y), k6/Artillery (wydajność)

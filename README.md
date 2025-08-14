@@ -31,6 +31,19 @@ The Sports Event Analyzer is developed to analyze and visualize data from sports
 - **Tailwind CSS 4**: For rapid UI development with utility-first classes.
 - **Shadcn/ui**: A set of high-quality UI components for React.
 
+## Testing
+
+- **Unit tests**:
+  - Vitest (test runner)
+  - @testing-library/react, @testing-library/dom (component and DOM testing)
+  - astro/test (Astro component testing)
+- **End-to-End (E2E)**:
+  - Playwright (UI + API flows)
+
+Additional (used across tests):
+- MSW (mocks for API/AI integrations)
+- ESLint, Prettier, TypeScript (`tsc --noEmit`) for quality gates
+
 ## Prerequisites
 
 - Node.js v22.14.0 (as specified in `.nvmrc`)
