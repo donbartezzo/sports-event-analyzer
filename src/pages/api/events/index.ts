@@ -4,6 +4,16 @@ import type { Event } from '../../../types';
 
 export const prerender = false;
 
+// Simple in-memory cache for upstream API-Football requests
+type CachedEntry = {
+  expires: number;
+  status: number;
+  headers: [string, string][];
+  body: string;
+};
+const UPSTREAM_CACHE = new Map<string, CachedEntry>();
+const CACHE_TTL_MS = 300_000; // 5 minutes
+
 const QuerySchema = z.object({
   league: z.string().min(1, 'league is required'),
   season: z.string().optional(),
@@ -75,10 +85,26 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     // Strategy 1: upcoming by `next` with explicit season (most APIs require season with league)
     const doFetch = async (search: URLSearchParams) => {
-      const resp = await fetch(`https://v3.football.api-sports.io/fixtures?${search.toString()}` , {
-        headers: { 'x-apisports-key': apiKey, Accept: 'application/json' },
-      });
-      return resp;
+      const url = `https://v3.football.api-sports.io/fixtures?${search.toString()}`;
+      const key = url; // GET-only cache key
+      const nowMs = Date.now();
+      const hit = UPSTREAM_CACHE.get(key);
+      if (hit && hit.expires > nowMs) {
+        const h = new Headers(hit.headers);
+        h.set('x-upstream-cache', 'HIT');
+        return new Response(hit.body, { status: hit.status, headers: h });
+      }
+      const resp = await fetch(url, { headers: { 'x-apisports-key': apiKey, Accept: 'application/json' } });
+      const status = resp.status;
+      const headersArr = Array.from(resp.headers.entries());
+      const body = await resp.text();
+      // Cache only successful responses
+      if (status === 200) {
+        UPSTREAM_CACHE.set(key, { expires: nowMs + CACHE_TTL_MS, status, headers: headersArr as [string, string][], body });
+      }
+      const h = new Headers(headersArr);
+      h.set('x-upstream-cache', 'MISS');
+      return new Response(body, { status, headers: h });
     };
 
     const p1 = new URLSearchParams();
