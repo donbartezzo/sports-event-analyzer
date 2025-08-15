@@ -4,14 +4,43 @@ import { EventsListWrapper } from '../../components/events/EventsListWrapper';
 import { Button } from '@/components/ui/button';
 import type { Event, League } from '../../types';
 
+type Discipline = { id: string; name: string; code: string };
+
+// Force SSR to avoid prerender-time fetch issues
+export const prerender = false;
+
 const { user } = Astro.locals;
+const sport = Astro.url.searchParams.get('sport') ?? '';
 const league = Astro.url.searchParams.get('league');
 let events: Event[] = [];
 let leagues: League[] = [];
+let disciplines: Discipline[] = [];
 
-if (league) {
+// Fetch disciplines (SSR) – served with server-side cache
+try {
+  const d = await Astro.fetch('/api/disciplines');
+  if (d.ok) {
+    const json = await d.json();
+    disciplines = json.data as Discipline[];
+  }
+} catch {}
+
+// Fallback to static list if empty (robustness against API/cache issues)
+if (!disciplines || disciplines.length === 0) {
+  disciplines = [
+    { id: 'football', name: 'Piłka nożna', code: 'football' },
+    { id: 'basketball', name: 'Koszykówka', code: 'basketball' },
+    { id: 'volleyball', name: 'Siatkówka', code: 'volleyball' },
+    { id: 'baseball', name: 'Baseball', code: 'baseball' },
+    { id: 'hockey', name: 'Hokej', code: 'hockey' },
+  ];
+}
+
+// Fetch events only when sport and league are selected
+if (sport && league) {
   try {
-    const res = await fetch(`${Astro.url.origin}/api/events?` + new URLSearchParams({ league, next: '100' }));
+    const params = new URLSearchParams({ league, next: '100', sport });
+    const res = await Astro.fetch('/api/events?' + params.toString());
     if (res.ok) {
       const json = await res.json();
       events = json.data as Event[];
@@ -21,14 +50,17 @@ if (league) {
   }
 }
 
-// Fetch leagues list for select (max 30 provided by API route)
-try {
-  const resp = await fetch(`${Astro.url.origin}/api/leagues`);
-  if (resp.ok) {
-    const json = await resp.json();
-    leagues = json.data as League[];
-  }
-} catch {}
+// Fetch leagues only when sport chosen
+if (sport) {
+  try {
+    const resp = await Astro.fetch('/api/leagues?' + new URLSearchParams({ sport }));
+    if (resp.ok) {
+      const json = await resp.json();
+      leagues = json.data as League[];
+    }
+  } catch {}
+}
+
 ---
 
 <DashboardLayout title="Events - Sports Event Analyzer">
@@ -43,38 +75,114 @@ try {
       <a href="/events/new">Add Event</a>
     </Button>
   </div>
-  <div class="mb-6 flex items-center gap-3">
-    <label for="league-select" class="text-sm font-medium">League</label>
-    <select id="league-select" name="league" class="border rounded px-3 py-2 text-sm"
-      aria-label="Select league to filter events"
-    >
-      <option value="">All leagues</option>
-      {leagues.map(l => (
-        <option value={l.id} selected={league ? String(l.id) === league : undefined}>
-          {l.name}{l.country ? ` (${l.country})` : ''}
-        </option>
-      ))}
-    </select>
+  <div class="mb-6 flex items-center gap-3 flex-wrap">
+    <div class="flex items-center gap-3">
+      <label for="sport-select" class="text-sm font-medium">Discipline</label>
+      <select id="sport-select" name="sport" class="border rounded px-3 py-2 text-sm" aria-label="Select discipline">
+        <option value="">— select —</option>
+        {disciplines.map(d => (
+          <option value={d.code} selected={sport === d.code}>{d.name}</option>
+        ))}
+      </select>
+    </div>
+    <div class="flex items-center gap-3">
+      <label for="league-select" class="text-sm font-medium">League</label>
+      <select id="league-select" name="league" class="border rounded px-3 py-2 text-sm disabled:opacity-50" aria-label="Select league to filter events" disabled={sport ? undefined : true}
+      >
+        <option value="">{sport ? 'All leagues' : 'Choose discipline first'}</option>
+        {leagues.map(l => (
+          <option value={l.id} selected={league ? String(l.id) === league : undefined}>
+            {l.name}{l.country ? ` (${l.country})` : ''}
+          </option>
+        ))}
+      </select>
+    </div>
+    {sport && leagues.length === 0 && (
+      <p id="league-hint" class="mt-2 text-xs text-muted-foreground">
+        Brak lig dla wybranej dyscypliny.
+      </p>
+    )}
   </div>
   <script is:inline>
-    const sel = document.getElementById('league-select');
-    if (sel) {
-      sel.addEventListener('change', (e) => {
-        const id = (e.target).value;
-        if (id) window.location.href = `/events/list?league=${id}`;
+    const leagueSel = document.getElementById('league-select');
+    const sportSel = document.getElementById('sport-select');
+    const leagueHint = document.getElementById('league-hint');
+    async function hydrateLeaguesIfEmpty() {
+      try {
+        const url = new URL(window.location.href);
+        const sport = url.searchParams.get('sport');
+        if (!sport) return;
+        // If only placeholder option is present, hydrate client-side
+        if (leagueSel && leagueSel.options.length <= 1) {
+          leagueSel.disabled = true;
+          const resp = await fetch(`/api/leagues?sport=${encodeURIComponent(sport)}&v=2`);
+          if (!resp.ok) return;
+          const data = await resp.json();
+          const leagues = (data.data ?? []);
+          leagueSel.innerHTML = `<option value="">All leagues</option>` +
+            leagues.map(l => `<option value="${l.id}">${l.name}${l.country ? ` (${l.country})` : ''}</option>`).join('');
+          // restore league value from URL if any
+          const current = url.searchParams.get('league');
+          if (current) leagueSel.value = current;
+          leagueSel.disabled = false;
+          // Toggle hint based on result
+          if (leagueHint) {
+            leagueHint.style.display = leagues.length > 0 ? 'none' : 'block';
+          }
+        }
+      } catch {}
+    }
+    if (sportSel) {
+      sportSel.addEventListener('change', (e) => {
+        const sport = e.target.value;
+        // Reset league select and hint immediately for UX
+        if (leagueSel) {
+          leagueSel.innerHTML = `<option value="">${sport ? 'All leagues' : 'Choose discipline first'}</option>`;
+          leagueSel.disabled = !sport;
+        }
+        if (leagueHint) {
+          leagueHint.style.display = sport && sport !== 'football' ? 'block' : 'none';
+        }
+        if (sport) window.location.href = `/events/list?sport=${sport}`;
         else window.location.href = '/events/list';
       });
-      // Initialize select value from query param (SSR selected covers initial render, this keeps it in sync on client nav)
+      const url = new URL(window.location.href);
+      const s = url.searchParams.get('sport');
+      if (s) sportSel.value = s;
+    }
+    if (leagueSel) {
+      leagueSel.addEventListener('change', (e) => {
+        const url = new URL(window.location.href);
+        const sport = url.searchParams.get('sport') ?? '';
+        const id = (e.target).value;
+        if (id) window.location.href = `/events/list?${new URLSearchParams({ sport, league: id }).toString()}`;
+        else window.location.href = sport ? `/events/list?sport=${sport}` : '/events/list';
+      });
       const url = new URL(window.location.href);
       const current = url.searchParams.get('league');
-      if (current) sel.value = current;
+      if (current) leagueSel.value = current;
+      // Hydrate leagues if SSR did not include them
+      hydrateLeaguesIfEmpty();
+      // Show hint if empty
+      const initUrl = new URL(window.location.href);
+      const initSport = initUrl.searchParams.get('sport');
+      if (leagueHint) {
+        leagueHint.style.display = initSport && initSport !== 'football' && leagueSel.options.length <= 1 ? 'block' : 'none';
+      }
+      // After hydration, adjust hint accordingly
+      (async () => {
+        const before = leagueSel.options.length;
+        await Promise.resolve();
+        const after = leagueSel.options.length;
+        if (leagueHint) leagueHint.style.display = after <= 1 ? 'block' : 'none';
+      })();
     }
   </script>
   <div class="rounded-md border">
-    {league ? (
+    {sport && league ? (
       <EventsListWrapper events={events} client:load />
     ) : (
-      <div class="p-4 text-sm text-muted-foreground">Select a league to view upcoming events.</div>
+      <div class="p-4 text-sm text-muted-foreground">{!sport ? 'Select a discipline to begin.' : 'Select a league to view upcoming events.'}</div>
     )}
   </div>
 </DashboardLayout>

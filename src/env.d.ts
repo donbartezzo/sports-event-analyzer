@@ -15,7 +15,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_ANON_KEY: string;
   readonly OPENROUTER_API_KEY: string;
-  readonly API_FOOTBALL_KEY: string; // server-only
+  readonly API_SPORTS_KEY: string; // server-only
+  readonly API_FOOTBALL_BASE_URL?: string; // optional override, server-only
   // more env variables...
 }
 
