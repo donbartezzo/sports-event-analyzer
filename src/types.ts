@@ -44,6 +44,13 @@ export interface Event {
   startTime: string;
 }
 
+// Represents a football league (subset of API-Football fields we use)
+export interface League {
+  id: number;
+  name: string;
+  country?: string | null;
+}
+
 // ---------------------
 // Analysis DTO and Commands
 // ---------------------

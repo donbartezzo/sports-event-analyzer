@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import type { Event } from '@/types';
 
@@ -18,7 +17,7 @@ export const EventCard = ({ event }: EventCardProps) => {
   };
 
   return (
-    <Link to={`/event/card/${event.id}`}>
+    <a href={`/event/card/${event.id}`}>
       <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
         <CardHeader>
           <h3 className="text-lg font-semibold">
@@ -32,6 +31,6 @@ export const EventCard = ({ event }: EventCardProps) => {
           <p className="text-sm text-gray-500">{formatDate(event.startTime)}</p>
         </CardContent>
       </Card>
-    </Link>
+    </a>
   );
 };

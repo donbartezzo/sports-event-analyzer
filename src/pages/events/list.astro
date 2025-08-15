@@ -2,27 +2,33 @@
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { EventsListWrapper } from '../../components/events/EventsListWrapper';
 import { Button } from '@/components/ui/button';
-import type { Event } from '../../types';
+import type { Event, League } from '../../types';
 
 const { user } = Astro.locals;
-const events: Event[] = [
-  {
-    id: '1',
-    participantA: 'Real Madrid',
-    participantB: 'Barcelona',
-    country: 'Spain',
-    league: 'La Liga',
-    startTime: '2024-03-20T20:00:00Z',
-  },
-  {
-    id: '2',
-    participantA: 'Manchester City',
-    participantB: 'Liverpool',
-    country: 'England',
-    league: 'Premier League',
-    startTime: '2024-03-21T15:00:00Z',
-  },
-];
+const league = Astro.url.searchParams.get('league');
+let events: Event[] = [];
+let leagues: League[] = [];
+
+if (league) {
+  try {
+    const res = await fetch(`${Astro.url.origin}/api/events?` + new URLSearchParams({ league, next: '100' }));
+    if (res.ok) {
+      const json = await res.json();
+      events = json.data as Event[];
+    }
+  } catch (e) {
+    // swallow; UI below will show empty state
+  }
+}
+
+// Fetch leagues list for select (max 30 provided by API route)
+try {
+  const resp = await fetch(`${Astro.url.origin}/api/leagues`);
+  if (resp.ok) {
+    const json = await resp.json();
+    leagues = json.data as League[];
+  }
+} catch {}
 ---
 
 <DashboardLayout title="Events - Sports Event Analyzer">
@@ -37,7 +43,38 @@ const events: Event[] = [
       <a href="/events/new">Add Event</a>
     </Button>
   </div>
+  <div class="mb-6 flex items-center gap-3">
+    <label for="league-select" class="text-sm font-medium">League</label>
+    <select id="league-select" name="league" class="border rounded px-3 py-2 text-sm"
+      aria-label="Select league to filter events"
+    >
+      <option value="">All leagues</option>
+      {leagues.map(l => (
+        <option value={l.id} selected={league ? String(l.id) === league : undefined}>
+          {l.name}{l.country ? ` (${l.country})` : ''}
+        </option>
+      ))}
+    </select>
+  </div>
+  <script is:inline>
+    const sel = document.getElementById('league-select');
+    if (sel) {
+      sel.addEventListener('change', (e) => {
+        const id = (e.target).value;
+        if (id) window.location.href = `/events/list?league=${id}`;
+        else window.location.href = '/events/list';
+      });
+      // Initialize select value from query param (SSR selected covers initial render, this keeps it in sync on client nav)
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('league');
+      if (current) sel.value = current;
+    }
+  </script>
   <div class="rounded-md border">
-    <EventsListWrapper events={events} client:load />
+    {league ? (
+      <EventsListWrapper events={events} client:load />
+    ) : (
+      <div class="p-4 text-sm text-muted-foreground">Select a league to view upcoming events.</div>
+    )}
   </div>
 </DashboardLayout>

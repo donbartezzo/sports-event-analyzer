@@ -19,7 +19,10 @@ const PUBLIC_PATHS = [
   '/api/auth/login',
   '/api/auth/reset-password',
   '/api/auth/new-password',
-  '/api/auth/logout'
+  '/api/auth/logout',
+  // Public data APIs (read-only)
+  '/api/leagues',
+  '/api/events',
 ];
 
 export const onRequest = defineMiddleware(
