@@ -53,36 +53,192 @@ export const GET: APIRoute = async ({ request }) => {
 
   const params = new URLSearchParams();
   params.set('league', league);
-  params.set('next', String(next ?? 100));
-  // Use current year as default season if not provided
-  if (season) params.set('season', season);
+  // Use current football season start year by default (season often spans Aug–May)
+  const now = new Date();
+  const inferredSeasonYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  const currentYear = inferredSeasonYear.toString();
+  // Optimize for free plan: default to 2023 if no season provided
+  const FREE_PLAN_DEFAULT_SEASON = '2023';
+  const chosenSeason = (season ?? FREE_PLAN_DEFAULT_SEASON);
+  const prevSeason = String(Number(chosenSeason) - 1);
+  // We'll only apply season for strategies that need it; window search will omit season
+  // Prefer explicit date window to ensure results
+  const to = new Date(now);
+  to.setDate(now.getDate() + 30); // next 30 days
+  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+  const windowParams = new URLSearchParams();
+  windowParams.set('league', league);
+  windowParams.set('from', fmt(now));
+  windowParams.set('to', fmt(to));
+  windowParams.set('timezone', 'UTC');
 
   try {
-    const resp = await fetch(`https://v3.football.api-sports.io/fixtures?${params.toString()}` , {
-      headers: {
-        'x-apisports-key': apiKey,
-        Accept: 'application/json',
-      },
-    });
+    // Strategy 1: upcoming by `next` with explicit season (most APIs require season with league)
+    const doFetch = async (search: URLSearchParams) => {
+      const resp = await fetch(`https://v3.football.api-sports.io/fixtures?${search.toString()}` , {
+        headers: { 'x-apisports-key': apiKey, Accept: 'application/json' },
+      });
+      return resp;
+    };
 
-    if (!resp.ok) {
+    const p1 = new URLSearchParams();
+    p1.set('league', league);
+    p1.set('season', chosenSeason);
+    p1.set('next', String(next ?? 20));
+    p1.set('timezone', 'UTC');
+    let resp = await doFetch(p1);
+    let usedStrategy = 'next-with-season';
+    let usedQuery: string = p1.toString();
+
+    if (resp.status === 429) {
       const text = await resp.text();
+      return new Response(JSON.stringify({ error: 'Rate limited', status: resp.status, body: text }), { status: 429 });
+    }
+
+    const tryParse = async (r: Response) => {
+      if (!r.ok) {
+        const text = await r.text();
+        return { ok: false as const, status: r.status, body: text };
+      }
+      const json = await r.json();
+      const parsed = ApiFootballResponseSchema.safeParse(json);
+      if (!parsed.success) {
+        return { ok: false as const, status: 502, body: parsed.error.flatten(), raw: json };
+      }
+      // Also surface upstream diagnostics when empty
+      return { ok: true as const, data: parsed.data.response, raw: json };
+    };
+
+    let parsed = await tryParse(resp);
+
+    // Strategy 0: league + season only (broad pull for the season)
+    if (parsed.ok && parsed.data.length === 0) {
+      const p0 = new URLSearchParams();
+      p0.set('league', league);
+      p0.set('season', chosenSeason);
+      p0.set('timezone', 'UTC');
+      resp = await doFetch(p0);
+      usedStrategy = 'league-season-only';
+      usedQuery = p0.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Removed: `next` without season (free plan requires season)
+
+    // Strategy 3: date window WITH season
+    if (parsed.ok && parsed.data.length === 0) {
+      const wSeason = new URLSearchParams(windowParams);
+      wSeason.set('season', chosenSeason);
+      resp = await doFetch(wSeason);
+      usedStrategy = 'window-with-season';
+      usedQuery = wSeason.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Removed: window without season (free plan requires season)
+
+    // Strategy 5: single date = today (WITH season)
+    if (parsed.ok && parsed.data.length === 0) {
+      const d1 = new URLSearchParams();
+      d1.set('league', league);
+      d1.set('season', chosenSeason);
+      d1.set('date', fmt(now));
+      d1.set('timezone', 'UTC');
+      resp = await doFetch(d1);
+      usedStrategy = 'date-today';
+      usedQuery = d1.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Strategy 6: single date = tomorrow (WITH season)
+    if (parsed.ok && parsed.data.length === 0) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const d2 = new URLSearchParams();
+      d2.set('league', league);
+      d2.set('season', chosenSeason);
+      d2.set('date', fmt(tomorrow));
+      d2.set('timezone', 'UTC');
+      resp = await doFetch(d2);
+      usedStrategy = 'date-tomorrow';
+      usedQuery = d2.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Strategy 7: week window (from today to +7 days) WITH season
+    if (parsed.ok && parsed.data.length === 0) {
+      const week = new URLSearchParams();
+      const to7 = new Date(now);
+      to7.setDate(now.getDate() + 7);
+      week.set('league', league);
+      week.set('season', chosenSeason);
+      week.set('from', fmt(now));
+      week.set('to', fmt(to7));
+      week.set('timezone', 'UTC');
+      resp = await doFetch(week);
+      usedStrategy = 'window-7d-with-season';
+      usedQuery = week.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Strategy 8: `next` with previous season (covers season boundary around Jul/Aug)
+    if (parsed.ok && parsed.data.length === 0) {
+      const pPrev = new URLSearchParams();
+      pPrev.set('league', league);
+      pPrev.set('season', prevSeason);
+      pPrev.set('next', String(next ?? 20));
+      pPrev.set('timezone', 'UTC');
+      resp = await doFetch(pPrev);
+      usedStrategy = 'next-with-prev-season';
+      usedQuery = pPrev.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Strategy 9: week window WITH previous season
+    if (parsed.ok && parsed.data.length === 0) {
+      const wPrev = new URLSearchParams();
+      const to7b = new Date(now);
+      to7b.setDate(now.getDate() + 7);
+      wPrev.set('league', league);
+      wPrev.set('season', prevSeason);
+      wPrev.set('from', fmt(now));
+      wPrev.set('to', fmt(to7b));
+      wPrev.set('timezone', 'UTC');
+      resp = await doFetch(wPrev);
+      usedStrategy = 'window-7d-with-prev-season';
+      usedQuery = wPrev.toString();
+      parsed = await tryParse(resp);
+    }
+
+    // Strategy 10: Free plan fallback to allowed season (2023) full-season window
+    if (parsed.ok && parsed.data.length === 0) {
+      const errPlan = (parsed as any).raw?.errors?.plan as string | undefined;
+      const errSeason = (parsed as any).raw?.errors?.season as string | undefined;
+      const mentionsFreePlan = errPlan?.toLowerCase().includes('free plans') ?? false;
+      const mentionsSeasonRequired = errSeason?.toLowerCase().includes('required') ?? false;
+      if (mentionsFreePlan || mentionsSeasonRequired) {
+        const FALLBACK_SEASON = '2023';
+        const fs = new URLSearchParams();
+        fs.set('league', league);
+        fs.set('season', FALLBACK_SEASON);
+        fs.set('from', '2023-07-01');
+        fs.set('to', '2024-06-30');
+        fs.set('timezone', 'UTC');
+        resp = await doFetch(fs);
+        usedStrategy = 'free-plan-fallback-2023';
+        usedQuery = fs.toString();
+        parsed = await tryParse(resp);
+      }
+    }
+
+    if (!parsed.ok) {
       return new Response(
-        JSON.stringify({ error: 'Upstream error', status: resp.status, body: text }),
+        JSON.stringify({ error: 'Upstream error', status: parsed.status, body: parsed.body, strategy: usedStrategy }),
         { status: 502 }
       );
     }
 
-    const json = await resp.json();
-    const parsed = ApiFootballResponseSchema.safeParse(json);
-    if (!parsed.success) {
-      return new Response(
-        JSON.stringify({ error: 'Unexpected upstream payload', details: parsed.error.flatten() }),
-        { status: 502 }
-      );
-    }
-
-    const events: Event[] = parsed.data.response.map((r) => ({
+    const events: Event[] = parsed.data.map((r) => ({
       id: String(r.fixture.id),
       participantA: r.teams.home.name,
       participantB: r.teams.away.name,
@@ -91,9 +247,16 @@ export const GET: APIRoute = async ({ request }) => {
       startTime: r.fixture.date,
     }));
 
+    // Debug: log upstream result size and strategy (visible in server console)
+    try {
+      const rlRem = resp.headers.get('x-ratelimit-remaining');
+      const rlDay = resp.headers.get('x-ratelimit-requests-remaining');
+      console.log('[api/events] league=%s season=%s strategy=%s count=%d query=%s rlRem=%s rlDay=%s', league, season ?? currentYear, usedStrategy, events.length, usedQuery, String(rlRem), String(rlDay));
+    } catch {}
+
     return new Response(
-      JSON.stringify({ data: events }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ data: events, meta: { strategy: usedStrategy, count: events.length, query: usedQuery, upstream: parsed.raw?.results ?? undefined, errors: parsed.raw?.errors ?? undefined, paging: parsed.raw?.paging ?? undefined } }),
+      { status: 200, headers: { 'Content-Type': 'application/json', 'x-used-strategy': usedStrategy, 'x-count': String(events.length), 'x-query': usedQuery } }
     );
   } catch (err) {
     return new Response(
