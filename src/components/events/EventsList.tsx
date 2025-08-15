@@ -6,9 +6,10 @@ interface EventsListProps {
   events: Event[];
   isLoading?: boolean;
   error?: string | null;
+  discipline?: string;
 }
 
-export const EventsList = ({ events, isLoading = false, error = null }: EventsListProps) => {
+export const EventsList = ({ events, isLoading = false, error = null, discipline }: EventsListProps) => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -30,13 +31,18 @@ export const EventsList = ({ events, isLoading = false, error = null }: EventsLi
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {events.map((event) => (
-        <EventCard 
-          key={event.id} 
-          event={event} 
-        />
-      ))}
+    <div>
+      {discipline ? (
+        <div className="mb-2 text-sm text-muted-foreground">Discipline: {discipline}</div>
+      ) : null}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {events.map((event) => (
+          <EventCard 
+            key={event.id} 
+            event={event} 
+          />
+        ))}
+      </div>
     </div>
   );
 };

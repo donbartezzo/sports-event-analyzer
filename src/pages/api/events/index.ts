@@ -54,7 +54,7 @@ export const GET: APIRoute = async ({ request }) => {
     );
   }
 
-  // For now we only implement football. Others return empty.
+  // For now only football is implemented; other sports return an empty placeholder response.
   if (sport !== 'football') {
     return new Response(
       JSON.stringify({ data: [], meta: { sport, note: 'This sport is not implemented yet' } }),
@@ -72,7 +72,7 @@ export const GET: APIRoute = async ({ request }) => {
 
   const params = new URLSearchParams();
   params.set('league', league);
-  // Use current football season start year by default (season often spans Aug–May)
+  // Use current season start year by default (football-specific season logic often spans Aug–May)
   const now = new Date();
   const inferredSeasonYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
   const currentYear = inferredSeasonYear.toString();

@@ -45,12 +45,12 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'Invalid sport', allowed: Array.from(SUPPORTED) }), { status: 400 });
   }
 
-  // Cache lookup (with guard against stale presets for non-football)
+  // Cache lookup (with guard against stale presets for other sports)
   const cached = CACHE.get(sport);
   if (cached && cached.expiresAt > now()) {
     const isPreset = (cached.payload.meta as any)?.source === 'preset';
     const hasData = Array.isArray(cached.payload.data) && cached.payload.data.length > 0;
-    // If non-football previously cached preset or any non-empty data, invalidate to reflect new behavior
+    // If sport is not 'football' and previously cached preset or any non-empty data, invalidate to reflect new behavior
     if (sport !== 'football' && (isPreset || hasData)) {
       CACHE.delete(sport);
     } else {
@@ -65,12 +65,12 @@ export const GET: APIRoute = async ({ request }) => {
     }
   }
 
-  // Handle non-football sports via API-Sports
+  // Handle other sports via API-Sports
   if (sport !== 'football') {
     const apiKey = (import.meta as any).env.API_SPORTS_KEY;
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'Server misconfiguration: API_SPORTS_KEY missing (required for non-football sports)' }),
+        JSON.stringify({ error: "Server misconfiguration: API_SPORTS_KEY missing (required for other sports)" }),
         { status: 500 }
       );
     }
@@ -122,7 +122,7 @@ export const GET: APIRoute = async ({ request }) => {
         })
         .filter((x): x is League => !!x && !!x.name);
       const payload = { data: leagues, meta: { sport } };
-      // Cache non-football leagues for 1 hour
+      // Cache other sports leagues for 1 hour
       CACHE.set(sport, { expiresAt: now() + 60 * 60 * 1000, payload });
       return new Response(JSON.stringify(payload), {
         status: 200,

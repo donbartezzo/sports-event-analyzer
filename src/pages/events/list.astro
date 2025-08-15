@@ -141,7 +141,8 @@ if (sport) {
           leagueSel.disabled = !sport;
         }
         if (leagueHint) {
-          leagueHint.style.display = sport && sport !== 'football' ? 'block' : 'none';
+          // Show hint until leagues are hydrated for any sport
+          leagueHint.style.display = sport && leagueSel.options.length <= 1 ? 'block' : 'none';
         }
         if (sport) window.location.href = `/events/list?sport=${sport}`;
         else window.location.href = '/events/list';
@@ -167,7 +168,7 @@ if (sport) {
       const initUrl = new URL(window.location.href);
       const initSport = initUrl.searchParams.get('sport');
       if (leagueHint) {
-        leagueHint.style.display = initSport && initSport !== 'football' && leagueSel.options.length <= 1 ? 'block' : 'none';
+        leagueHint.style.display = initSport && leagueSel.options.length <= 1 ? 'block' : 'none';
       }
       // After hydration, adjust hint accordingly
       (async () => {
@@ -180,7 +181,7 @@ if (sport) {
   </script>
   <div class="rounded-md border">
     {sport && league ? (
-      <EventsListWrapper events={events} client:load />
+      <EventsListWrapper events={events} discipline={sport} client:load />
     ) : (
       <div class="p-4 text-sm text-muted-foreground">{!sport ? 'Select a discipline to begin.' : 'Select a league to view upcoming events.'}</div>
     )}

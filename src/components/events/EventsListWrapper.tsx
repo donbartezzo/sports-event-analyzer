@@ -4,10 +4,11 @@ import { EventsList } from './EventsList';
 
 interface EventsListWrapperProps {
   events: Event[];
+  discipline?: string;
 }
 
-export const EventsListWrapper = ({ events }: EventsListWrapperProps) => {
+export const EventsListWrapper = ({ events, discipline }: EventsListWrapperProps) => {
   return (
-    <EventsList events={events} />
+    <EventsList events={events} discipline={discipline} />
   );
 };

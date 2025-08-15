@@ -44,7 +44,7 @@ export interface Event {
   startTime: string;
 }
 
-// Represents a football league (subset of API-Football fields we use)
+// Represents a league/competition (subset of upstream API fields we use)
 export interface League {
   id: number;
   name: string;

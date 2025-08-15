@@ -7,6 +7,7 @@ A comprehensive platform designed to provide detailed analysis and insights for 
 - [Project Name](#project-name)
 - [Project Description](#project-description)
 - [Tech Stack](#tech-stack)
+- [Supported Sports](#supported-sports)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
 - [Project Structure](#project-structure)
@@ -21,7 +22,7 @@ A comprehensive platform designed to provide detailed analysis and insights for 
 
 ## Project Description
 
-The Sports Event Analyzer is developed to analyze and visualize data from sports events. The platform provides detailed metrics, reports, and interactive dashboards to help users understand team performance, player statistics, and game dynamics. Designed with modern web technologies, it emphasizes responsiveness and user-friendly interfaces.
+The Sports Event Analyzer is developed to analyze and visualize data from sports events across multiple team sports. The platform provides detailed metrics, reports, and interactive dashboards to help users understand team performance, player statistics, and game dynamics. Designed with modern web technologies, it emphasizes responsiveness and user-friendly interfaces.
 
 ## Tech Stack
 
@@ -30,6 +31,16 @@ The Sports Event Analyzer is developed to analyze and visualize data from sports
 - **React 19**: For dynamic and interactive user interfaces.
 - **Tailwind CSS 4**: For rapid UI development with utility-first classes.
 - **Shadcn/ui**: A set of high-quality UI components for React.
+
+## Supported Sports
+
+This project supports the following team sports (MVP+):
+
+- Football (Soccer)
+- Basketball
+- Volleyball
+- Baseball
+- Ice Hockey
 
 ## Testing
 
@@ -144,6 +155,7 @@ The project is designed to:
 - Provide interactive dashboards for data visualization.
 - Enable users to explore detailed statistics for teams and players.
 - Serve as a platform for further development of sports analytics features.
+- Offer multi-sport coverage for popular team sports listed in the Supported Sports section.
 
 ## Project Status
 
