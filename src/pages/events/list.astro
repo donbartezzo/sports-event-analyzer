@@ -1,7 +1,6 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { EventsListWrapper } from '../../components/events/EventsListWrapper';
-import { Button } from '@/components/ui/button';
 import type { Event, League } from '../../types';
 
 type Discipline = { id: string; name: string; code: string };
@@ -77,9 +76,6 @@ if (sport) {
         Browse and analyze sports events.
       </p>
     </div>
-    <Button variant="default">
-      <a href="/events/new">Add Event</a>
-    </Button>
   </div>
   <div class="mb-6 flex items-center gap-3 flex-wrap">
     <div class="flex items-center gap-3">
