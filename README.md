@@ -91,11 +91,17 @@ Additional (used across tests):
 
 Create a `.env` from `.env.example` and set:
 
-- `PUBLIC_SUPABASE_URL` – your Supabase project URL
-- `PUBLIC_SUPABASE_ANON_KEY` – anon public key
-- `GROQ_API_KEY` – server-side key for Groq (AI analysis)
+- `PUBLIC_SUPABASE_URL` – your Supabase project URL (public, exposed to client)
+- `PUBLIC_SUPABASE_ANON_KEY` – anon public key (public, exposed to client)
+- `API_SPORTS_KEY` – API key for API-SPORTS (server-only, required)
+- `API_FOOTBALL_BASE_URL` – base URL for API-FOOTBALL (optional, defaults to `https://v3.football.api-sports.io`)
+- `GROQ_API_KEY` – server-side key for Groq (AI analysis, server-only)
+- `GROQ_MODEL` – Groq model name (optional, defaults to `llama-3.3-70b-versatile`)
 
-Note: `GROQ_API_KEY` is used only on the server (API routes). Do not expose it in the client.
+Notes:
+- Variables prefixed with `PUBLIC_` are available in the client bundle (Astro convention). Keep all others server-only.
+- `API_SPORTS_KEY` is required by endpoints like `src/pages/api/events/[id].ts` and services in `src/lib/api-sports.ts`.
+- `GROQ_API_KEY` and `GROQ_MODEL` are used by `src/pages/api/analysis/generate.ts`.
 
 ## Database Migrations (Supabase)
 
@@ -120,7 +126,7 @@ RLS is enabled with permissive policies for MVP; refine as needed.
 - Endpoint: `POST /api/analysis/generate`
 - Input: `{ eventId: string, discipline: 'football'|'basketball'|'volleyball'|'baseball'|'hockey', snapshot: object }`
 - Output: `{ data: { analysisId, summary, details, recommendations, finished_at, type } }`
-- Provider: Groq (`llama-3.1-70b-versatile`)
+ - Provider: Groq (configurable via `GROQ_MODEL`, default: `llama-3.3-70b-versatile`)
 - Features: idempotency via snapshot checksum, retries with timeout, structured markdown parsing, per-discipline prompt hints.
 
 ## Available Scripts
