@@ -5,6 +5,12 @@ import { apiSportsFetch } from '../../../lib/api-sports';
 
 export const prerender = false;
 
+// Simple 24h in-memory cache for events by key (sport+league+season+next)
+type EventsCacheEntry = { expiresAt: number; payload: { data: Event[]; meta?: Record<string, unknown> } };
+const EVENTS_CACHE = new Map<string, EventsCacheEntry>();
+const nowMs = () => Date.now();
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const QuerySchema = z.object({
   league: z.string().min(1, 'league is required'),
   season: z.string().optional(),
@@ -54,12 +60,33 @@ export const GET: APIRoute = async ({ request }) => {
     );
   }
 
+  // Compose cache key and try cache first
+  const cacheKey = `${sport}|${league}|${season ?? ''}|${next ?? ''}`;
+  const hit = EVENTS_CACHE.get(cacheKey);
+  if (hit && hit.expiresAt > nowMs()) {
+    return new Response(JSON.stringify(hit.payload), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200',
+        'x-cache': 'HIT',
+      },
+    });
+  }
+
   // For now only football is implemented; other sports return an empty placeholder response.
   if (sport !== 'football') {
-    return new Response(
-      JSON.stringify({ data: [], meta: { sport, note: 'This sport is not implemented yet' } }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    const payload = { data: [], meta: { sport, note: 'This sport is not implemented yet' } };
+    // store 24h in-memory cache
+    EVENTS_CACHE.set(cacheKey, { expiresAt: nowMs() + DAY_MS, payload });
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200',
+        'x-cache': 'MISS',
+      },
+    });
   }
 
   const apiKey = (import.meta as any).env.API_SPORTS_KEY;
@@ -268,10 +295,20 @@ export const GET: APIRoute = async ({ request }) => {
       console.log('[api/events] league=%s season=%s strategy=%s count=%d query=%s rlRem=%s rlDay=%s', league, season ?? currentYear, usedStrategy, events.length, usedQuery, String(rlRem), String(rlDay));
     } catch {}
 
-    return new Response(
-      JSON.stringify({ data: events, meta: { strategy: usedStrategy, count: events.length, query: usedQuery, upstream: parsed.raw?.results ?? undefined, errors: parsed.raw?.errors ?? undefined, paging: parsed.raw?.paging ?? undefined } }),
-      { status: 200, headers: { 'Content-Type': 'application/json', 'x-used-strategy': usedStrategy, 'x-count': String(events.length), 'x-query': usedQuery } }
-    );
+    const payload = { data: events, meta: { strategy: usedStrategy, count: events.length, query: usedQuery, upstream: parsed.raw?.results ?? undefined, errors: parsed.raw?.errors ?? undefined, paging: parsed.raw?.paging ?? undefined } };
+    // store 24h in-memory cache
+    EVENTS_CACHE.set(cacheKey, { expiresAt: nowMs() + DAY_MS, payload });
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200',
+        'x-used-strategy': usedStrategy,
+        'x-count': String(events.length),
+        'x-query': usedQuery,
+        'x-cache': 'MISS',
+      },
+    });
   } catch (err) {
     return new Response(
       JSON.stringify({ error: 'Failed to fetch events', message: String(err) }),

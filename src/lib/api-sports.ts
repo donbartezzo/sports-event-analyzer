@@ -12,7 +12,7 @@ type CachedEntry = {
 };
 
 const CACHE = new Map<string, CachedEntry>();
-const DEFAULT_TTL_MS = 300_000; // 5 minutes
+const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 import { API_FOOTBALL_BASE_URL } from './config';
 

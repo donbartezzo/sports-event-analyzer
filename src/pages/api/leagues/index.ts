@@ -58,7 +58,8 @@ export const GET: APIRoute = async ({ request }) => {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=900, s-maxage=900, stale-while-revalidate=600',
+          // 24h cache for responses served from memory as well
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200',
           'x-cache': 'HIT',
         },
       });
@@ -122,13 +123,13 @@ export const GET: APIRoute = async ({ request }) => {
         })
         .filter((x): x is League => !!x && !!x.name);
       const payload = { data: leagues, meta: { sport } };
-      // Cache other sports leagues for 1 hour
-      CACHE.set(sport, { expiresAt: now() + 60 * 60 * 1000, payload });
+      // Cache other sports leagues for 24 hours
+      CACHE.set(sport, { expiresAt: now() + 24 * 60 * 60 * 1000, payload });
       return new Response(JSON.stringify(payload), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=1800',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200',
           'x-cache': 'MISS',
         },
       });
@@ -205,11 +206,11 @@ export const GET: APIRoute = async ({ request }) => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (cacheHeader) headers['x-upstream-cache'] = cacheHeader;
     const payload = { data: leagues, meta: { sport } };
-    // Cache football leagues for 1 hour
-    CACHE.set(sport, { expiresAt: now() + 60 * 60 * 1000, payload });
+    // Cache football leagues for 24 hours
+    CACHE.set(sport, { expiresAt: now() + 24 * 60 * 60 * 1000, payload });
     return new Response(JSON.stringify(payload), {
       status: 200,
-      headers: { ...headers, 'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=1800', 'x-cache': 'MISS' },
+      headers: { ...headers, 'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=43200', 'x-cache': 'MISS' },
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: 'Failed to fetch leagues', message: String(e) }), { status: 503 });
