@@ -1,0 +1,153 @@
+name: Test & Build main
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  unit-test:
+    name: Unit Tests
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload unit coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: |
+            coverage/**
+          if-no-files-found: ignore
+
+  e2e-test:
+    name: E2E Tests
+    needs: [lint]
+    runs-on: ubuntu-latest
+    environment: integration
+    env:
+      NODE_ENV: integration
+      # Optionally map secrets into env via a single multiline secret (recommended):
+      # Set repository/organization secret E2E_ENV with lines like VAR=VALUE
+      E2E_ENV: ${{ secrets.E2E_ENV }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (browsers from playwright.config.ts)
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare environment from E2E_ENV secret (optional)
+        if: env.E2E_ENV != ''
+        run: |
+          echo "$E2E_ENV" > .env
+          # Export to current shell for steps that read from env directly
+          set -o allexport
+          source .env || true
+          set +o allexport
+
+      - name: Run Playwright tests
+        env:
+          # Add specific secrets here if you introduce them later, e.g.:
+          # SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          # SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          PW_TEST_HTML_REPORT_OPEN: never
+        run: |
+          npx playwright test --reporter=list,html
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results
+          if-no-files-found: ignore
+
+      - name: Upload e2e coverage (if generated)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-e2e
+          path: |
+            coverage/**
+            .nyc_output/**
+          if-no-files-found: ignore
+
+  status-comment:
+    name: Post Status Comment
+    needs: [lint, unit-test, e2e-test]
+    if: ${{ success() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const body = `✅ CI passed\n\n- Lint: success\n- Unit tests: success\n- E2E tests: success`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body,
+            });
