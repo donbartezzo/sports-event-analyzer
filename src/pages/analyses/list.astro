@@ -2,33 +2,45 @@
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { Button } from '@/components/ui/button';
 import { AnalysesTable } from '@/components/analyses/AnalysesTable';
+// Pobieranie danych z bazy
+const { user, supabase } = Astro.locals as {
+  user?: any;
+  supabase?: any;
+};
 
-// Przykładowe dane - docelowo będą pobierane z bazy
-const analyses = [
-  {
-    id: '1',
-    title: 'Real Madrid vs Barcelona Analysis',
-    status: 'completed',
-    type: 'Match Analysis',
-    createdAt: '2024-03-20T20:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Manchester City Performance Review',
-    status: 'in_progress',
-    type: 'Team Analysis',
-    createdAt: '2024-03-21T15:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Premier League Season Stats',
-    status: 'failed',
-    type: 'League Analysis',
-    createdAt: '2024-03-19T10:00:00Z',
-  },
-] as const;
+let fetchError: string | null = null;
+let analyses: Array<{ id: string; title: string; status: 'completed' | 'in_progress' | 'failed'; type: string; createdAt: string; }> = [];
 
-const { user } = Astro.locals;
+if (supabase) {
+  try {
+    const { data, error } = await supabase
+      .from('analysis')
+      .select('id, event_id, type, status, created_at, content_json')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    analyses = (data ?? []).map((row: any) => {
+      const rawStatus = String(row.status || '').toLowerCase();
+      const status: 'completed' | 'in_progress' | 'failed' =
+        rawStatus === 'completed' ? 'completed' : rawStatus === 'pending' ? 'in_progress' : 'failed';
+      const summary = row?.content_json?.summary as string | undefined;
+      const title = summary
+        ? String(summary).split('\n')[0].slice(0, 120)
+        : `Analysis for event ${row.event_id}`;
+      return {
+        id: String(row.id),
+        title,
+        status,
+        type: String(row.type ?? 'ai'),
+        createdAt: String(row.created_at),
+      };
+    });
+  } catch (e: any) {
+    fetchError = e?.message || String(e);
+  }
+} else {
+  fetchError = 'Supabase client not available';
+}
 ---
 
 <DashboardLayout title="Analyses - Sports Event Analyzer">

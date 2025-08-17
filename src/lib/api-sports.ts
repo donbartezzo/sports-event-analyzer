@@ -29,7 +29,7 @@ const BASES: Record<SupportedSport, string> = {
  * Requires API_SPORTS_KEY to be set.
  */
 export type ApiSportsFetchOptions = {
-  ttlMs?: number; // cache TTL for GETs
+  ttlMs?: number; // cache TTL for GETs; set 0 to bypass cache
 };
 
 export async function apiSportsFetch(
@@ -47,7 +47,7 @@ export async function apiSportsFetch(
   if (key) headers['x-apisports-key'] = key;
 
   const method = (init?.method || 'GET').toUpperCase();
-  const useCache = method === 'GET';
+  const useCache = method === 'GET' && opts.ttlMs !== 0;
   const ttl = typeof opts.ttlMs === 'number' ? opts.ttlMs : DEFAULT_TTL_MS;
 
   if (useCache) {

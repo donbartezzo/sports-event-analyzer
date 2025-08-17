@@ -87,6 +87,42 @@ Additional (used across tests):
 
    Visit [http://localhost:3000](http://localhost:3000) to view the project.
 
+## Environment Variables
+
+Create a `.env` from `.env.example` and set:
+
+- `PUBLIC_SUPABASE_URL` – your Supabase project URL
+- `PUBLIC_SUPABASE_ANON_KEY` – anon public key
+- `GROQ_API_KEY` – server-side key for Groq (AI analysis)
+
+Note: `GROQ_API_KEY` is used only on the server (API routes). Do not expose it in the client.
+
+## Database Migrations (Supabase)
+
+This project includes SQL migrations under `supabase/migrations/`.
+
+To apply them against your project (recommended via Supabase CLI):
+
+```sh
+supabase db push     # or supabase db reset in local dev
+```
+
+Key tables added/extended for AI analysis (US-004):
+
+- `analysis` (uuid id, status, checksum, content_json, timing fields)
+- `analysis_logs` (per-analysis logs, jsonb context)
+- `logs` (system logs with enums `log_event`, `log_type`)
+
+RLS is enabled with permissive policies for MVP; refine as needed.
+
+## AI Analysis (US-004)
+
+- Endpoint: `POST /api/analysis/generate`
+- Input: `{ eventId: string, discipline: 'football'|'basketball'|'volleyball'|'baseball'|'hockey', snapshot: object }`
+- Output: `{ data: { analysisId, summary, details, recommendations, finished_at, type } }`
+- Provider: Groq (`llama-3.1-70b-versatile`)
+- Features: idempotency via snapshot checksum, retries with timeout, structured markdown parsing, per-discipline prompt hints.
+
 ## Available Scripts
 
 - **`npm run dev`**: Starts the development server.

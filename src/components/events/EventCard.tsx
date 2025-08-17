@@ -1,11 +1,21 @@
 import { Card, CardContent, CardHeader } from '../ui/card';
 import type { Event } from '@/types';
+import React from 'react';
 
 interface EventCardProps {
   event: Event;
 }
 
 export const EventCard = ({ event }: EventCardProps) => {
+  const [search, setSearch] = React.useState('');
+  React.useEffect(() => {
+    try {
+      const s = typeof window !== 'undefined' ? window.location.search : '';
+      setSearch(s ?? '');
+    } catch {
+      setSearch('');
+    }
+  }, []);
   const formatDate = (date: string) => {
     return new Date(date).toLocaleString('en-US', {
       day: '2-digit',
@@ -17,7 +27,7 @@ export const EventCard = ({ event }: EventCardProps) => {
   };
 
   return (
-    <a href={`/event/card/${event.id}`}>
+    <a href={`/event/card/${event.id}${search}`}>
       <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
         <CardHeader>
           <h3 className="text-lg font-semibold">

@@ -5,43 +5,115 @@ import { Separator } from '../../../components/ui/separator';
 import { Alert, AlertDescription } from '../../../components/ui/alert';
 
 const { id } = Astro.params;
+const { supabase } = Astro.locals as { supabase: any };
 
-// Tutaj będzie pobieranie danych wydarzenia z Supabase
-const event = {
-  id,
-  title: "Example Event",
-  date: "2025-06-01T18:00:00Z",
-  type: "Sports Event",
-  status: "upcoming",
-  teams: {
-    home: "Team A",
-    away: "Team B"
-  },
-  venue: "Main Stadium",
-  description: "Important match in the championship series",
-  lastAnalysis: null
-};
+let event: any = null;
+let loadError: string | null = null;
+
+try {
+  // Pobierz event z API (API-Football) zamiast z bazy)
+  const baseUrl = new URL(`/api/events/${id}`, Astro.request.url);
+  // 1) Najpierw bez dodatkowych parametrów (najbardziej niezawodne)
+  let resp = await fetch(baseUrl);
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(text || 'Błąd pobierania wydarzenia z API.');
+  }
+  let payload = await resp.json().catch(() => null);
+  let apiEv = payload?.data ?? null;
+  // 2) Jeśli brak, spróbuj z parametrami z URL (sport/league/season)
+  if (!apiEv) {
+    try {
+      const pageUrl = new URL(Astro.request.url);
+      const sport = pageUrl.searchParams.get('sport');
+      const league = pageUrl.searchParams.get('league');
+      const season = pageUrl.searchParams.get('season');
+      const withParams = new URL(`/api/events/${id}`, Astro.request.url);
+      if (sport) withParams.searchParams.set('sport', sport);
+      if (league) withParams.searchParams.set('league', league);
+      if (season) withParams.searchParams.set('season', season);
+      const r2 = await fetch(withParams);
+      if (r2.ok) {
+        const p2 = await r2.json().catch(() => null);
+        if (p2?.data) apiEv = p2.data;
+      }
+    } catch {}
+  }
+  if (!apiEv) {
+    loadError = 'Nie znaleziono wydarzenia.';
+  } else {
+    event = {
+      id: apiEv.id,
+      title: apiEv.title ?? `Event ${apiEv.id}`,
+      date: apiEv.date ?? null,
+      type: apiEv.type ?? 'event',
+      status: apiEv.status ?? 'unknown',
+      teams: apiEv.teams ?? {},
+      venue: apiEv.venue ?? '',
+      description: apiEv.description ?? '',
+      lastAnalysis: null,
+    };
+
+    // Pobierz ostatnią ukończoną analizę dla eventu
+    const { data: last, error: lastErr } = await supabase
+      .from('analysis')
+      .select('id, finished_at, content_json, status, type')
+      .eq('event_id', event.id)
+      .eq('status', 'completed')
+      .order('finished_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!lastErr && last) {
+      event.lastAnalysis = {
+        id: last.id,
+        finished_at: last.finished_at,
+        date: last.finished_at,
+        type: last.type ?? 'ai',
+        status: last.status ?? 'completed',
+        summary: last.content_json?.summary ?? '',
+        details: last.content_json?.details ?? '',
+        recommendations: last.content_json?.recommendations ?? '',
+      };
+    }
+  }
+} catch (e: any) {
+  loadError = e?.message || String(e);
+}
 ---
 
-<DashboardLayout title={`${event.title} - Sports Event Analyzer`}>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold tracking-tight">{event.title}</h2>
-        <p class="text-muted-foreground">
-          View event details and generate analysis
-        </p>
-      </div>
-      <div class="flex items-center space-x-2">
-        <a
-          href="/events/list"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-        >
-          Back to Events
-        </a>
-      </div>
+<DashboardLayout title={`${(event?.title ?? 'Event')} - Sports Event Analyzer`}>
+  {loadError || !event ? (
+    <div class="space-y-4">
+      <Alert variant="destructive">
+        <AlertDescription>{loadError ?? 'Nie znaleziono wydarzenia.'}</AlertDescription>
+      </Alert>
+      <a
+        href="/events/list"
+        class="inline-flex w-fit items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+      >
+        Back to Events
+      </a>
     </div>
-    <Separator />
-    <EventDetails client:load eventId={event.id} initialData={event} />
-  </div>
+  ) : (
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">{event.title}</h2>
+          <p class="text-muted-foreground">
+            View event details and generate analysis
+          </p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a
+            href="/events/list"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+          >
+            Back to Events
+          </a>
+        </div>
+      </div>
+      <Separator />
+      <EventDetails client:load eventId={event.id} initialData={event} />
+    </div>
+  )}
 </DashboardLayout>

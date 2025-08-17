@@ -6,6 +6,8 @@ import type { User } from '@supabase/supabase-js';
 declare module 'astro' {
   interface Locals {
     user?: User;
+    // Attach server-side Supabase client for API routes
+    supabase?: ReturnType<typeof createSupabaseServer>;
   }
 }
 
@@ -23,19 +25,28 @@ const PUBLIC_PATHS = [
   // Public data APIs (read-only)
   '/api/leagues',
   '/api/events',
+  // AI analysis generation (server-side, safe for MVP)
+  '/api/analysis/generate',
 ];
+
+function isPublicPath(pathname: string) {
+  if (PUBLIC_PATHS.includes(pathname)) return true;
+  // Allow all nested routes under selected public API roots
+  if (pathname.startsWith('/api/events/')) return true;
+  if (pathname.startsWith('/api/leagues/')) return true;
+  return false;
+}
 
 export const onRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
+    // Always create and attach Supabase client for downstream usage (also on public paths)
+    const supabase = createSupabaseServer({ cookies, headers: request.headers });
+    locals.supabase = supabase;
+
     // Skip auth check for public paths
-    if (PUBLIC_PATHS.includes(url.pathname)) {
+    if (isPublicPath(url.pathname)) {
       return next();
     }
-
-    const supabase = createSupabaseServer({
-      cookies,
-      headers: request.headers,
-    });
 
     // IMPORTANT: Always get user session first before any other operations
     const {

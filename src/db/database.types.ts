@@ -36,34 +36,46 @@ export type Database = {
     Tables: {
       analysis: {
         Row: {
-          analysis_type_id: number
+          id: string
+          user_id: string | null
+          event_id: string
+          analysis_type_id: number | null
+          type: string
+          status: string
           checksum: string
+          started_at: string | null
+          finished_at: string | null
+          duration_ms: number | null
+          content_json: Json | null
           created_at: string
-          generation_time: number | null
-          id: number
-          id_from_api: string
-          parameters: Json
-          user_id: string
         }
         Insert: {
-          analysis_type_id: number
+          id?: string
+          user_id?: string | null
+          event_id: string
+          analysis_type_id?: number | null
+          type?: string
+          status?: string
           checksum: string
+          started_at?: string | null
+          finished_at?: string | null
+          duration_ms?: number | null
+          content_json?: Json | null
           created_at?: string
-          generation_time?: number | null
-          id?: number
-          id_from_api: string
-          parameters: Json
-          user_id: string
         }
         Update: {
-          analysis_type_id?: number
+          id?: string
+          user_id?: string | null
+          event_id?: string
+          analysis_type_id?: number | null
+          type?: string
+          status?: string
           checksum?: string
+          started_at?: string | null
+          finished_at?: string | null
+          duration_ms?: number | null
+          content_json?: Json | null
           created_at?: string
-          generation_time?: number | null
-          id?: number
-          id_from_api?: string
-          parameters?: Json
-          user_id?: string
         }
         Relationships: [
           {
@@ -77,22 +89,31 @@ export type Database = {
       }
       analysis_logs: {
         Row: {
-          analysis_id: number
+          id: string
+          analysis_id: string
+          event_id: string
+          level: string
+          message: string
+          context: Json | null
           created_at: string
-          id: number
-          log_id: number
         }
         Insert: {
-          analysis_id: number
+          id?: string
+          analysis_id: string
+          event_id: string
+          level: string
+          message: string
+          context?: Json | null
           created_at?: string
-          id?: number
-          log_id: number
         }
         Update: {
-          analysis_id?: number
+          id?: string
+          analysis_id?: string
+          event_id?: string
+          level?: string
+          message?: string
+          context?: Json | null
           created_at?: string
-          id?: number
-          log_id?: number
         }
         Relationships: [
           {
@@ -101,14 +122,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "analysis"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "analysis_logs_log_id_fkey"
-            columns: ["log_id"]
-            isOneToOne: false
-            referencedRelation: "logs"
-            referencedColumns: ["id"]
-          },
+          }
         ]
       }
       analysis_types: {
@@ -134,28 +148,28 @@ export type Database = {
       }
       logs: {
         Row: {
-          created_at: string
+          id: string
           event: Database["public"]["Enums"]["log_event"]
-          id: number
-          log: Json
           type: Database["public"]["Enums"]["log_type"]
+          log: Json
           user_id: string | null
+          created_at: string
         }
         Insert: {
-          created_at?: string
+          id?: string
           event: Database["public"]["Enums"]["log_event"]
-          id?: number
-          log: Json
           type: Database["public"]["Enums"]["log_type"]
+          log: Json
           user_id?: string | null
+          created_at?: string
         }
         Update: {
-          created_at?: string
+          id?: string
           event?: Database["public"]["Enums"]["log_event"]
-          id?: number
-          log?: Json
           type?: Database["public"]["Enums"]["log_type"]
+          log?: Json
           user_id?: string | null
+          created_at?: string
         }
         Relationships: []
       }

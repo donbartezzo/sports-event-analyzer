@@ -35,7 +35,16 @@ create index if not exists analysis_type_id_idx on analysis(analysis_type_id);
 create index if not exists analysis_created_at_idx on analysis(created_at desc);
 create index if not exists analysis_logs_analysis_id_idx on analysis_logs(analysis_id);
 create index if not exists analysis_logs_created_at_idx on analysis_logs(created_at desc);
-create index if not exists logs_level_idx on logs(level);
+-- In newer schema `logs` may not have `level` (replaced by enum `type`).
+-- Create index on level only if the column exists.
+do $$ begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'logs' and column_name = 'level'
+  ) then
+    execute 'create index if not exists logs_level_idx on logs(level)';
+  end if;
+end $$;
 create index if not exists logs_created_at_idx on logs(created_at desc);
 
 -- RLS
