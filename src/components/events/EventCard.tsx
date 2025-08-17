@@ -1,28 +1,28 @@
-import { Card, CardContent, CardHeader } from '../ui/card';
-import type { Event } from '@/types';
-import React from 'react';
+import { Card, CardContent, CardHeader } from "../ui/card";
+import type { Event } from "@/types";
+import React from "react";
 
 interface EventCardProps {
   event: Event;
 }
 
 export const EventCard = ({ event }: EventCardProps) => {
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = React.useState("");
   React.useEffect(() => {
     try {
-      const s = typeof window !== 'undefined' ? window.location.search : '';
-      setSearch(s ?? '');
+      const s = typeof window !== "undefined" ? window.location.search : "";
+      setSearch(s ?? "");
     } catch {
-      setSearch('');
+      setSearch("");
     }
   }, []);
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleString('en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(date).toLocaleString("en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 

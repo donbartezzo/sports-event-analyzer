@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Alert, AlertDescription } from '../ui/alert';
-import { newPasswordSchema, type NewPasswordFormData } from '../../lib/validations/auth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Alert, AlertDescription } from "../ui/alert";
+import { newPasswordSchema, type NewPasswordFormData } from "../../lib/validations/auth";
 
 export default function NewPasswordForm() {
   const [error, setError] = useState<string | null>(null);
@@ -20,17 +20,17 @@ export default function NewPasswordForm() {
     resolver: zodResolver(newPasswordSchema),
   });
 
-  const password = watch('password');
+  const password = watch("password");
 
   const onSubmit = async (data: NewPasswordFormData) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/auth/new-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/new-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ password: data.password }),
       });
@@ -42,7 +42,7 @@ export default function NewPasswordForm() {
 
       // Przekierowanie zostanie obsłużone przez endpoint
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas zmiany hasła');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas zmiany hasła");
     } finally {
       setIsLoading(false);
     }
@@ -59,13 +59,9 @@ export default function NewPasswordForm() {
               type="password"
               autoComplete="new-password"
               disabled={isLoading}
-              {...register('password')}
+              {...register("password")}
             />
-            {errors.password && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.password.message}
-              </p>
-            )}
+            {errors.password && <p className="text-sm font-medium text-destructive">{errors.password.message}</p>}
           </div>
           <div className="grid gap-1">
             <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
@@ -74,15 +70,12 @@ export default function NewPasswordForm() {
               type="password"
               autoComplete="new-password"
               disabled={isLoading}
-              {...register('confirmPassword', {
-                validate: (value) =>
-                  value === password || 'Hasła muszą być identyczne',
+              {...register("confirmPassword", {
+                validate: (value) => value === password || "Hasła muszą być identyczne",
               })}
             />
             {errors.confirmPassword && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-sm font-medium text-destructive">{errors.confirmPassword.message}</p>
             )}
           </div>
           {error && (
@@ -91,7 +84,7 @@ export default function NewPasswordForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Aktualizowanie hasła...' : 'Zaktualizuj hasło'}
+            {isLoading ? "Aktualizowanie hasła..." : "Zaktualizuj hasło"}
           </Button>
         </div>
       </form>

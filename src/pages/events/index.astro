@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
 // Server-side redirect to make /events/list the default landing
-const target = '/events/list';
+const target = "/events/list";
 return new Response(null, { status: 308, headers: { Location: target } });
+---

@@ -1,7 +1,7 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { ProfileForm } from '../../components/user/ProfileForm';
-import { Separator } from '../../components/ui/separator';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { ProfileForm } from "../../components/user/ProfileForm";
+import { Separator } from "../../components/ui/separator";
 
 const { user } = Astro.locals;
 ---
@@ -10,9 +10,7 @@ const { user } = Astro.locals;
   <div class="space-y-6">
     <div>
       <h3 class="text-lg font-medium">Profile</h3>
-      <p class="text-sm text-muted-foreground">
-        Manage your account settings and preferences.
-      </p>
+      <p class="text-sm text-muted-foreground">Manage your account settings and preferences.</p>
     </div>
     <Separator />
     <ProfileForm client:load initialUser={user} />

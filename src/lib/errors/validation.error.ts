@@ -1,7 +1,7 @@
-import { BaseError } from './base.error';
+import { BaseError } from "./base.error";
 
 export class ValidationError extends BaseError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 400, details);
   }
 }

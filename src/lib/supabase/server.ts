@@ -1,19 +1,16 @@
-import type { AstroCookies } from 'astro';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import type { Database } from '../../db/types';
+import type { AstroCookies } from "astro";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { Database } from "../../db/types";
 
 export const cookieOptions: CookieOptions = {
-  path: '/',
+  path: "/",
   secure: true,
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: "lax",
   maxAge: 60 * 60 * 24 * 7, // 7 dni
 };
 
-export const createSupabaseServer = (context: {
-  headers: Headers;
-  cookies: AstroCookies;
-}) => {
+export const createSupabaseServer = (context: { headers: Headers; cookies: AstroCookies }) => {
   const supabase = createServerClient<Database>(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -29,7 +26,7 @@ export const createSupabaseServer = (context: {
           context.cookies.delete(name, { ...cookieOptions, ...options });
         },
       },
-    },
+    }
   );
 
   return supabase;

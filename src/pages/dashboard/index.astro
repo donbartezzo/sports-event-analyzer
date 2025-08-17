@@ -1,12 +1,12 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 
 // Ensure user is authenticated
 const { user } = Astro.locals;
 
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 
 const stats = [
@@ -38,15 +38,11 @@ const stats = [
         stats.map((stat) => (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <div class="text-2xl font-bold">{stat.value}</div>
-              <p class="text-xs text-muted-foreground">
-                {stat.description}
-              </p>
+              <p class="text-xs text-muted-foreground">{stat.description}</p>
             </CardContent>
           </Card>
         ))
@@ -56,9 +52,7 @@ const stats = [
       <Card class="col-span-4">
         <CardHeader>
           <CardTitle>Recent Analyses</CardTitle>
-          <CardDescription>
-            Your most recent analysis results
-          </CardDescription>
+          <CardDescription> Your most recent analysis results </CardDescription>
         </CardHeader>
         <CardContent>
           <p class="text-sm text-muted-foreground">No analyses yet</p>
@@ -67,9 +61,7 @@ const stats = [
       <Card class="col-span-3">
         <CardHeader>
           <CardTitle>Activity</CardTitle>
-          <CardDescription>
-            Your recent activity
-          </CardDescription>
+          <CardDescription> Your recent activity </CardDescription>
         </CardHeader>
         <CardContent>
           <p class="text-sm text-muted-foreground">No recent activity</p>

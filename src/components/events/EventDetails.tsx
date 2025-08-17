@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { useSupabase } from '../../lib/hooks/useSupabase';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Badge } from '../ui/badge';
+import { useState } from "react";
+import { format } from "date-fns";
+import { useSupabase } from "../../lib/hooks/useSupabase";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Badge } from "../ui/badge";
 
 interface EventDetailsProps {
   eventId: string;
@@ -46,13 +46,13 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
       setError(null);
       // Heurystyka dyscypliny (MVP)
       const inferDiscipline = (val?: string) => {
-        const v = (val || '').toLowerCase();
-        if (['football','basketball','volleyball','baseball','hockey'].includes(v)) return v;
+        const v = (val || "").toLowerCase();
+        if (["football", "basketball", "volleyball", "baseball", "hockey"].includes(v)) return v;
         // domyślnie football jako najczęstszy przypadek
-        return 'football';
+        return "football";
       };
 
-      const discipline = inferDiscipline((event as any).type);
+      const discipline = inferDiscipline(event.type);
 
       // Zbuduj snapshot do checksumy i analizy: użyj posiadanych danych UI (MVP)
       const snapshot = {
@@ -66,36 +66,36 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
       };
 
       // Wywołanie endpointu generowania analizy (US-004)
-      const resp = await fetch('/api/analysis/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const resp = await fetch("/api/analysis/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventId, discipline, snapshot }),
       });
 
       if (!resp.ok) {
         if (resp.status === 409) {
           const data = await resp.json().catch(() => ({}));
-          throw new Error(data?.error || 'Brak kompletnych danych do wygenerowania analizy.');
+          throw new Error(data?.error || "Brak kompletnych danych do wygenerowania analizy.");
         }
-        const text = await resp.text().catch(() => '');
-        throw new Error(text || 'Błąd generowania analizy. Spróbuj ponownie później.');
+        const text = await resp.text().catch(() => "");
+        throw new Error(text || "Błąd generowania analizy. Spróbuj ponownie później.");
       }
 
       const { data } = await resp.json();
 
-      setEvent(prev => ({
+      setEvent((prev) => ({
         ...prev,
         lastAnalysis: {
           date: data?.finished_at || new Date().toISOString(),
-          status: 'completed',
-          type: data?.type || 'ai',
-          summary: data?.summary || '',
-          details: data?.details || '',
-          recommendations: data?.recommendations || '',
+          status: "completed",
+          type: data?.type || "ai",
+          summary: data?.summary || "",
+          details: data?.details || "",
+          recommendations: data?.recommendations || "",
         },
       }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate analysis');
+      setError(err instanceof Error ? err.message : "Failed to generate analysis");
     } finally {
       setIsAnalyzing(false);
     }
@@ -114,10 +114,10 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                 <dt className="text-sm font-medium text-muted-foreground">Date</dt>
                 <dd className="text-sm">
                   {(() => {
-                    const val = (event as any)?.date as string | undefined | null;
-                    if (!val) return '—';
+                    const val = event.date ?? null;
+                    if (!val) return "—";
                     const d = new Date(val);
-                    return isNaN(d.getTime()) ? '—' : format(d, 'PPP');
+                    return isNaN(d.getTime()) ? "—" : format(d, "PPP");
                   })()}
                 </dd>
               </div>
@@ -128,9 +128,7 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">Status</dt>
                 <dd>
-                  <Badge variant={event.status === 'upcoming' ? 'default' : 'secondary'}>
-                    {event.status}
-                  </Badge>
+                  <Badge variant={event.status === "upcoming" ? "default" : "secondary"}>{event.status}</Badge>
                 </dd>
               </div>
               <div>
@@ -150,9 +148,7 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
         <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Analysis</CardTitle>
-            <CardDescription>
-              Generate and view analysis for this event
-            </CardDescription>
+            <CardDescription>Generate and view analysis for this event</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -163,11 +159,10 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                       <p className="text-sm font-medium">Last Analysis</p>
                       <p className="text-sm text-muted-foreground">
                         {(() => {
-                          const la: any = (event as any)?.lastAnalysis || {};
-                          const val = (la.finished_at || la.date) as string | undefined | null;
-                          if (!val) return '—';
+                          const val = (event.lastAnalysis?.finished_at ?? event.lastAnalysis?.date) ?? null;
+                          if (!val) return "—";
                           const d = new Date(val);
-                          return isNaN(d.getTime()) ? '—' : format(d, 'PPP');
+                          return isNaN(d.getTime()) ? "—" : format(d, "PPP");
                         })()}
                       </p>
                     </div>
@@ -175,25 +170,19 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                   </div>
                   <div className="space-y-1">
                     <Button onClick={generateAnalysis} disabled={isAnalyzing}>
-                      {isAnalyzing ? 'Analyzing…' : 'Generate New Analysis'}
+                      {isAnalyzing ? "Analyzing…" : "Generate New Analysis"}
                     </Button>
-                    {isAnalyzing && (
-                      <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>
-                    )}
+                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>}
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    No analysis has been generated for this event yet.
-                  </p>
+                  <p className="text-sm text-muted-foreground">No analysis has been generated for this event yet.</p>
                   <div className="space-y-1">
                     <Button onClick={generateAnalysis} disabled={isAnalyzing}>
-                      {isAnalyzing ? 'Analyzing…' : 'Generate Analysis'}
+                      {isAnalyzing ? "Analyzing…" : "Generate Analysis"}
                     </Button>
-                    {isAnalyzing && (
-                      <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>
-                    )}
+                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>}
                   </div>
                 </div>
               )}
@@ -232,19 +221,19 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
               <TabsContent value="summary" className="space-y-2">
                 <h4 className="text-sm font-medium">Key Points</h4>
                 <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {event.lastAnalysis?.summary || '—'}
+                  {event.lastAnalysis?.summary || "—"}
                 </div>
               </TabsContent>
               <TabsContent value="details" className="space-y-2">
                 <h4 className="text-sm font-medium">Details</h4>
                 <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {event.lastAnalysis?.details || '—'}
+                  {event.lastAnalysis?.details || "—"}
                 </div>
               </TabsContent>
               <TabsContent value="recommendations" className="space-y-2">
                 <h4 className="text-sm font-medium">Recommendations</h4>
                 <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {event.lastAnalysis?.recommendations || '—'}
+                  {event.lastAnalysis?.recommendations || "—"}
                 </div>
               </TabsContent>
             </Tabs>

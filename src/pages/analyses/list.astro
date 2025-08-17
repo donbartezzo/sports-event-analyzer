@@ -1,45 +1,48 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { Button } from '@/components/ui/button';
-import { AnalysesTable } from '@/components/analyses/AnalysesTable';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { Button } from "@/components/ui/button";
+import { AnalysesTable } from "@/components/analyses/AnalysesTable";
 // Pobieranie danych z bazy
-const { user, supabase } = Astro.locals as {
-  user?: any;
-  supabase?: any;
-};
+const { user, supabase } = Astro.locals;
 
 let fetchError: string | null = null;
-let analyses: Array<{ id: string; title: string; status: 'completed' | 'in_progress' | 'failed'; type: string; createdAt: string; }> = [];
+let analyses: {
+  id: string;
+  title: string;
+  status: "completed" | "in_progress" | "failed";
+  type: string;
+  createdAt: string;
+}[] = [];
 
 if (supabase) {
   try {
     const { data, error } = await supabase
-      .from('analysis')
-      .select('id, event_id, type, status, created_at, content_json')
-      .order('created_at', { ascending: false })
+      .from("analysis")
+      .select("id, event_id, type, status, created_at, content_json")
+      .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw error;
-    analyses = (data ?? []).map((row: any) => {
-      const rawStatus = String(row.status || '').toLowerCase();
-      const status: 'completed' | 'in_progress' | 'failed' =
-        rawStatus === 'completed' ? 'completed' : rawStatus === 'pending' ? 'in_progress' : 'failed';
-      const summary = row?.content_json?.summary as string | undefined;
-      const title = summary
-        ? String(summary).split('\n')[0].slice(0, 120)
-        : `Analysis for event ${row.event_id}`;
+    analyses = (data ?? []).map((row) => {
+      const rawStatus = String((row as { status?: string | null })?.status || "").toLowerCase();
+      const status: "completed" | "in_progress" | "failed" =
+        rawStatus === "completed" ? "completed" : rawStatus === "pending" ? "in_progress" : "failed";
+      const summary = (row as { content_json?: { summary?: unknown } | null })?.content_json?.summary;
+      const title = typeof summary === "string" && summary
+        ? summary.split("\n")[0].slice(0, 120)
+        : `Analysis for event ${(row as { event_id?: string | number }).event_id}`;
       return {
-        id: String(row.id),
+        id: String((row as { id: string | number }).id),
         title,
         status,
-        type: String(row.type ?? 'ai'),
-        createdAt: String(row.created_at),
+        type: String((row as { type?: string | null }).type ?? "ai"),
+        createdAt: String((row as { created_at: string | Date }).created_at),
       };
     });
-  } catch (e: any) {
-    fetchError = e?.message || String(e);
+  } catch (err) {
+    fetchError = (err as { message?: unknown } | null)?.message ? String((err as { message?: unknown }).message) : String(err);
   }
 } else {
-  fetchError = 'Supabase client not available';
+  fetchError = "Supabase client not available";
 }
 ---
 
@@ -47,9 +50,7 @@ if (supabase) {
   <div class="flex justify-between items-center mb-8">
     <div>
       <h3 class="text-lg font-medium">Analyses</h3>
-      <p class="text-sm text-muted-foreground">
-        View and manage your sports event analyses.
-      </p>
+      <p class="text-sm text-muted-foreground">View and manage your sports event analyses.</p>
     </div>
     <Button variant="default">
       <a href="/analyses/new">New Analysis</a>

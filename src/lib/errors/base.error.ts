@@ -1,8 +1,8 @@
 export class BaseError extends Error {
   constructor(
     message: string,
-    public readonly statusCode: number = 500,
-    public readonly details?: any
+    public readonly statusCode = 500,
+    public readonly details?: unknown
   ) {
     super(message);
     this.name = this.constructor.name;

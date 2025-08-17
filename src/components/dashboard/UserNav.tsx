@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,10 +6,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../components/ui/dropdown-menu';
-import { Button } from '../../components/ui/button';
-import { useSupabase } from '../../lib/hooks/useSupabase';
-import type { User } from '@supabase/supabase-js';
+} from "../../components/ui/dropdown-menu";
+import { Button } from "../../components/ui/button";
+import { useSupabase } from "../../lib/hooks/useSupabase";
+import type { User } from "@supabase/supabase-js";
 
 interface Props {
   initialUser: User;
@@ -24,7 +24,7 @@ export function UserNav({ initialUser }: Props) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
+      if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (session?.user) {
         setUser(session.user);
@@ -39,30 +39,30 @@ export function UserNav({ initialUser }: Props) {
   // Efekt obsługujący przekierowanie po wylogowaniu
   useEffect(() => {
     if (user === null) {
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   }, [user]);
 
   const handleSignOut = async () => {
     try {
       setUser(null); // Natychmiast czyścimy stan użytkownika
-      
+
       // Wywołujemy endpoint wylogowania, który wyczyści sesję po stronie serwera
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Błąd podczas wylogowywania');
+        throw new Error("Błąd podczas wylogowywania");
       }
 
       // Przekierowanie zostanie obsłużone przez endpoint
     } catch (error) {
-      console.error('Błąd wylogowania:', error);
-      window.location.href = '/login';
+      console.error("Błąd wylogowania:", error);
+      window.location.href = "/login";
     }
   };
 
@@ -81,9 +81,7 @@ export function UserNav({ initialUser }: Props) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -94,10 +92,7 @@ export function UserNav({ initialUser }: Props) {
           <a href="/user/settings">Settings</a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={handleSignOut}
-        >
+        <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

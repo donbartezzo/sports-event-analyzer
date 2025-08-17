@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
-import { createSupabaseServer } from '../../../lib/supabase/server';
+import type { APIRoute } from "astro";
+import { createSupabaseServer } from "../../../lib/supabase/server";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -12,20 +12,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      return new Response(
-        JSON.stringify({ error: 'Wystąpił błąd podczas wysyłania linku resetującego hasło' }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Wystąpił błąd podczas wysyłania linku resetującego hasło" }), {
+        status: 400,
+      });
     }
 
-    return new Response(
-      JSON.stringify({ message: 'Link do resetowania hasła został wysłany na podany adres email' }),
-      { status: 200 }
-    );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: 'Wystąpił błąd podczas przetwarzania żądania' }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ message: "Link do resetowania hasła został wysłany na podany adres email" }), {
+      status: 200,
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), { status: 500 });
   }
 };

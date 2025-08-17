@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
-import { createSupabaseServer } from '../../../lib/supabase/server';
+import type { APIRoute } from "astro";
+import { createSupabaseServer } from "../../../lib/supabase/server";
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   try {
@@ -8,17 +8,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      return new Response(
-        JSON.stringify({ error: 'Wystąpił błąd podczas wylogowywania' }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Wystąpił błąd podczas wylogowywania" }), { status: 400 });
     }
 
-    return redirect('/login');
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: 'Wystąpił błąd podczas przetwarzania żądania' }),
-      { status: 500 }
-    );
+    return redirect("/login");
+  } catch {
+    return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), { status: 500 });
   }
 };

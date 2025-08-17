@@ -8,8 +8,8 @@
   - For creation commands, certain fields (e.g. auto-generated fields) are omitted and data fields may be renamed for better clarity.
 */
 
-import type { Json, Database } from './db/database.types';
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { Json, Database } from "./db/database.types";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 declare global {
   namespace App {
@@ -24,12 +24,12 @@ declare global {
 // User DTO
 // ---------------------
 // Although user management is handled by Supabase Auth, we define a minimal UserDTO for extended profile data.
-export type UserDTO = {
+export interface UserDTO {
   id: string;
   // Additional user fields (e.g. email, username) can be added if needed
   email?: string;
   name?: string;
-};
+}
 
 // ---------------------
 // Event DTO
@@ -55,7 +55,7 @@ export interface League {
 // Analysis DTO and Commands
 // ---------------------
 // The AnalysisDTO maps directly to the analysis table in the database.
-export type AnalysisDTO = {
+export interface AnalysisDTO {
   id: number;
   user_id: string;
   analysis_type_id: number;
@@ -64,15 +64,15 @@ export type AnalysisDTO = {
   generation_time: number | null;
   id_from_api: string;
   parameters: Json;
-};
+}
 
 // Command used to create a new Analysis record via POST /analysis
 // Now, 'analysis_type_id' is expected to be a number from the start.
-export type CreateAnalysisCommand = {
+export interface CreateAnalysisCommand {
   user_id: string;
   analysis_type_id: number; // analysis_type_id is handled as number (from start)
   parameters: Json;
-};
+}
 
 // Command used to update an existing Analysis record via PUT /analysis/{id}
 // All properties are optional to allow partial updates.
@@ -99,20 +99,20 @@ export interface PaginatedResponse<T> {
 // ---------------------
 // AnalysisLogDTO ties the log entry with its parent analysis. In the database,
 // analysis_logs table provides the linkage between an analysis and a log (stored in the logs table).
-export type AnalysisLogDTO = {
+export interface AnalysisLogDTO {
   analysis_id: number;
-  id: number;             // Unique identifier for the analysis log record
+  id: number; // Unique identifier for the analysis log record
   created_at: string;
-  log_id: number;         // Reference to the system log entry
+  log_id: number; // Reference to the system log entry
   // Additional log details can be merged from the system log if needed
-};
+}
 
 // Command used to create a new log entry for an analysis via POST /analysis/{analysis_id}/logs
-export type CreateAnalysisLogCommand = {
+export interface CreateAnalysisLogCommand {
   message: string;
-  timestamp: string;       // ISO8601 formatted string
-  level: 'info' | 'warning' | 'error';
-};
+  timestamp: string; // ISO8601 formatted string
+  level: "info" | "warning" | "error";
+}
 
 // Command used to update an existing analysis log entry via PUT /analysis/{analysis_id}/logs/{log_id}
 export type UpdateAnalysisLogCommand = Partial<CreateAnalysisLogCommand>;
@@ -121,33 +121,33 @@ export type UpdateAnalysisLogCommand = Partial<CreateAnalysisLogCommand>;
 // Analysis Type DTO
 // ---------------------
 // Maps directly to the analysis_types table in the database
-export type AnalysisTypeDTO = {
+export interface AnalysisTypeDTO {
   id: number;
   name: string;
   description: string | null;
   created_at: string;
-};
+}
 
 // ---------------------
 // System Log DTO and Commands
 // ---------------------
 // LogDTO represents a system log entry from the logs table
-export type LogDTO = {
+export interface LogDTO {
   id: number;
-  event: 'general' | 'analysis_generator';
-  type: 'success' | 'error' | 'info';
+  event: "general" | "analysis_generator";
+  type: "success" | "error" | "info";
   log: Json;
   created_at: string;
   user_id: string | null;
-};
+}
 
 // Command to create a new system log entry via POST /logs
-export type CreateLogCommand = {
+export interface CreateLogCommand {
   message: string;
   timestamp: string;
-  level: 'info' | 'warning' | 'error';
+  level: "info" | "warning" | "error";
   meta: Json;
-};
+}
 
 // Command to update an existing system log entry via PUT /logs
 export type UpdateLogCommand = Partial<CreateLogCommand>;

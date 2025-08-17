@@ -1,7 +1,7 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { PasswordChangeForm } from '../../components/user/PasswordChangeForm';
-import { Separator } from '../../components/ui/separator';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { PasswordChangeForm } from "../../components/user/PasswordChangeForm";
+import { Separator } from "../../components/ui/separator";
 
 const { user } = Astro.locals;
 ---
@@ -10,18 +10,14 @@ const { user } = Astro.locals;
   <div class="space-y-6">
     <div>
       <h3 class="text-lg font-medium">Settings</h3>
-      <p class="text-sm text-muted-foreground">
-        Manage your account settings and security.
-      </p>
+      <p class="text-sm text-muted-foreground">Manage your account settings and security.</p>
     </div>
     <Separator />
-    
+
     <div class="space-y-6">
       <div>
         <h4 class="text-sm font-medium">Password</h4>
-        <p class="text-sm text-muted-foreground">
-          Change your password to keep your account secure.
-        </p>
+        <p class="text-sm text-muted-foreground">Change your password to keep your account secure.</p>
       </div>
       <PasswordChangeForm client:load initialUser={user} />
     </div>

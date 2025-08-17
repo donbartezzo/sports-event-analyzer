@@ -1,16 +1,20 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { EventsListWrapper } from '../../components/events/EventsListWrapper';
-import type { Event, League } from '../../types';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { EventsListWrapper } from "../../components/events/EventsListWrapper";
+import type { Event, League } from "../../types";
 
-type Discipline = { id: string; name: string; code: string };
+interface Discipline {
+  id: string;
+  name: string;
+  code: string;
+}
 
 // Force SSR to avoid prerender-time fetch issues
 export const prerender = false;
 
-const { user } = Astro.locals;
-const sport = Astro.url.searchParams.get('sport') ?? '';
-const league = Astro.url.searchParams.get('league');
+// const { user } = Astro.locals; // unused
+const sport = Astro.url.searchParams.get("sport") ?? "";
+const league = Astro.url.searchParams.get("league");
 let events: Event[] = [];
 let leagues: League[] = [];
 let disciplines: Discipline[] = [];
@@ -18,39 +22,41 @@ let disciplines: Discipline[] = [];
 // Default discipline to football: redirect if no sport provided
 if (!sport) {
   // Keep user on the same page but with default sport preselected
-  return Astro.redirect('/events/list?sport=football');
+  return Astro.redirect("/events/list?sport=football");
 }
 
 // Fetch disciplines (SSR) – served with server-side cache
 try {
-  const d = await Astro.fetch('/api/disciplines');
+  const d = await Astro.fetch("/api/disciplines");
   if (d.ok) {
     const json = await d.json();
     disciplines = json.data as Discipline[];
   }
-} catch {}
+} catch {
+  /* ignore */
+}
 
 // Fallback to static list if empty (robustness against API/cache issues)
 if (!disciplines || disciplines.length === 0) {
   disciplines = [
-    { id: 'football', name: 'Piłka nożna', code: 'football' },
-    { id: 'basketball', name: 'Koszykówka', code: 'basketball' },
-    { id: 'volleyball', name: 'Siatkówka', code: 'volleyball' },
-    { id: 'baseball', name: 'Baseball', code: 'baseball' },
-    { id: 'hockey', name: 'Hokej', code: 'hockey' },
+    { id: "football", name: "Piłka nożna", code: "football" },
+    { id: "basketball", name: "Koszykówka", code: "basketball" },
+    { id: "volleyball", name: "Siatkówka", code: "volleyball" },
+    { id: "baseball", name: "Baseball", code: "baseball" },
+    { id: "hockey", name: "Hokej", code: "hockey" },
   ];
 }
 
 // Fetch events only when sport and league are selected
 if (sport && league) {
   try {
-    const params = new URLSearchParams({ league, next: '100', sport });
-    const res = await Astro.fetch('/api/events?' + params.toString());
+    const params = new URLSearchParams({ league, next: "100", sport });
+    const res = await Astro.fetch("/api/events?" + params.toString());
     if (res.ok) {
       const json = await res.json();
       events = json.data as Event[];
     }
-  } catch (e) {
+  } catch {
     // swallow; UI below will show empty state
   }
 }
@@ -58,23 +64,22 @@ if (sport && league) {
 // Fetch leagues only when sport chosen
 if (sport) {
   try {
-    const resp = await Astro.fetch('/api/leagues?' + new URLSearchParams({ sport }));
+    const resp = await Astro.fetch("/api/leagues?" + new URLSearchParams({ sport }));
     if (resp.ok) {
       const json = await resp.json();
       leagues = json.data as League[];
     }
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }
-
 ---
 
 <DashboardLayout title="Events - Sports Event Analyzer">
   <div class="flex justify-between items-center mb-8">
     <div>
       <h3 class="text-lg font-medium">Events</h3>
-      <p class="text-sm text-muted-foreground">
-        Browse and analyze sports events.
-      </p>
+      <p class="text-sm text-muted-foreground">Browse and analyze sports events.</p>
     </div>
   </div>
   <div class="mb-6 flex items-center gap-3 flex-wrap">
@@ -82,24 +87,48 @@ if (sport) {
       <label for="sport-select" class="text-sm font-medium">Discipline</label>
       <select id="sport-select" name="sport" class="border rounded px-3 py-2 text-sm" aria-label="Select discipline">
         <option value="">— select —</option>
-        {disciplines.map(d => (
-          <option value={d.code} selected={sport === d.code}>{d.name}</option>
-        ))}
+        {
+          disciplines.map((d) => (
+            <option value={d.code} selected={sport === d.code}>
+              {d.name}
+            </option>
+          ))
+        }
       </select>
     </div>
     <div class="flex items-center gap-3">
       <label for="league-select" class="text-sm font-medium">League</label>
-      <select id="league-select" name="league" class="border rounded px-3 py-2 text-sm disabled:opacity-50" aria-label="Select league to filter events" disabled={sport ? undefined : true}
+      <select
+        id="league-select"
+        name="league"
+        class="border rounded px-3 py-2 text-sm disabled:opacity-50"
+        aria-label="Select league to filter events"
+        disabled={sport ? undefined : true}
       >
-        <option value="">{sport ? 'All leagues' : 'Choose discipline first'}</option>
-        {leagues.map(l => (
-          <option value={l.id} selected={league ? String(l.id) === league : undefined}>
-            {l.name}{l.country ? ` (${l.country})` : ''}
-          </option>
-        ))}
+        <option value="">{sport ? "All leagues" : "Choose discipline first"}</option>
+        {
+          leagues.map((l) => (
+            <option value={l.id} selected={league ? String(l.id) === league : undefined}>
+              {l.name}
+              {l.country ? ` (${l.country})` : ""}
+            </option>
+          ))
+        }
       </select>
-      <span id="league-loading" class="inline-flex items-center gap-2 text-xs text-muted-foreground" role="status" aria-live="polite" style="display: none;">
-        <svg class="animate-spin h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+      <span
+        id="league-loading"
+        class="inline-flex items-center gap-2 text-xs text-muted-foreground"
+        role="status"
+        aria-live="polite"
+        style="display: none;"
+      >
+        <svg
+          class="animate-spin h-4 w-4 text-muted-foreground"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
         </svg>
@@ -111,66 +140,70 @@ if (sport) {
     </p>
   </div>
   <script is:inline>
-    const leagueSel = document.getElementById('league-select');
-    const sportSel = document.getElementById('sport-select');
-    const leagueHint = document.getElementById('league-hint');
-    const leagueLoading = document.getElementById('league-loading');
+    const leagueSel = document.getElementById("league-select");
+    const sportSel = document.getElementById("sport-select");
+    const leagueHint = document.getElementById("league-hint");
+    const leagueLoading = document.getElementById("league-loading");
     async function hydrateLeaguesIfEmpty() {
       try {
         const url = new URL(window.location.href);
-        const sport = url.searchParams.get('sport');
+        const sport = url.searchParams.get("sport");
         if (!sport) return;
         // If only placeholder option is present, hydrate client-side
         if (leagueSel && leagueSel.options.length <= 1) {
           leagueSel.disabled = true;
-          if (leagueLoading) leagueLoading.style.display = 'inline-flex';
-          if (leagueHint) leagueHint.style.display = 'none';
+          if (leagueLoading) leagueLoading.style.display = "inline-flex";
+          if (leagueHint) leagueHint.style.display = "none";
           const resp = await fetch(`/api/leagues?sport=${encodeURIComponent(sport)}&v=2`);
           if (!resp.ok) return;
           const data = await resp.json();
-          const leagues = (data.data ?? []);
-          leagueSel.innerHTML = `<option value="">All leagues</option>` +
-            leagues.map(l => `<option value="${l.id}">${l.name}${l.country ? ` (${l.country})` : ''}</option>`).join('');
+          const leagues = data.data ?? [];
+          leagueSel.innerHTML =
+            `<option value="">All leagues</option>` +
+            leagues
+              .map((l) => `<option value="${l.id}">${l.name}${l.country ? ` (${l.country})` : ""}</option>`)
+              .join("");
           // restore league value from URL if any
-          const current = url.searchParams.get('league');
+          const current = url.searchParams.get("league");
           if (current) leagueSel.value = current;
           leagueSel.disabled = false;
           // Toggle hint based on result
           if (leagueHint) {
-            leagueHint.style.display = leagues.length > 0 ? 'none' : 'block';
+            leagueHint.style.display = leagues.length > 0 ? "none" : "block";
           }
         }
-      } catch {}
-      finally {
-        if (leagueLoading) leagueLoading.style.display = 'none';
+      } catch {
+        /* ignore */
+      } finally {
+        if (leagueLoading) leagueLoading.style.display = "none";
       }
     }
     if (sportSel) {
-      sportSel.addEventListener('change', (e) => {
+      sportSel.addEventListener("change", (e) => {
         const sport = e.target.value;
         // Reset league select and hint immediately for UX
         if (leagueSel) {
-          leagueSel.innerHTML = `<option value="">${sport ? 'All leagues' : 'Choose discipline first'}</option>`;
+          leagueSel.innerHTML = `<option value="">${sport ? "All leagues" : "Choose discipline first"}</option>`;
           leagueSel.disabled = !sport;
         }
         // Do not toggle the hint here to avoid flicker; hydration will decide
         if (sport) window.location.href = `/events/list?sport=${sport}`;
-        else window.location.href = '/events/list';
+        else window.location.href = "/events/list";
       });
       const url = new URL(window.location.href);
-      const s = url.searchParams.get('sport');
+      const s = url.searchParams.get("sport");
       if (s) sportSel.value = s;
     }
     if (leagueSel) {
-      leagueSel.addEventListener('change', (e) => {
+      leagueSel.addEventListener("change", (e) => {
         const url = new URL(window.location.href);
-        const sport = url.searchParams.get('sport') ?? '';
-        const id = (e.target).value;
+        const sport = url.searchParams.get("sport") ?? "";
+        const id = e.target.value;
         if (id) window.location.href = `/events/list?${new URLSearchParams({ sport, league: id }).toString()}`;
-        else window.location.href = sport ? `/events/list?sport=${sport}` : '/events/list';
+        else window.location.href = sport ? `/events/list?sport=${sport}` : "/events/list";
       });
       const url = new URL(window.location.href);
-      const current = url.searchParams.get('league');
+      const current = url.searchParams.get("league");
       if (current) leagueSel.value = current;
       // Hydrate leagues if SSR did not include them
       hydrateLeaguesIfEmpty();
@@ -178,22 +211,32 @@ if (sport) {
       (async () => {
         await Promise.resolve();
         const after = leagueSel.options.length;
-        if (leagueHint) leagueHint.style.display = after <= 1 ? 'block' : 'none';
+        if (leagueHint) leagueHint.style.display = after <= 1 ? "block" : "none";
       })();
     }
   </script>
   <div class="rounded-md border">
-    {sport && league ? (
-      <EventsListWrapper events={events} discipline={sport} client:load />
-    ) : (
-      <div class="p-10 text-center text-muted-foreground flex flex-col items-center gap-3">
-        <svg class="h-10 w-10 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <h4 class="text-sm font-medium">{!sport ? 'Select a discipline to begin.' : 'Select a league to view upcoming events.'}</h4>
-        <p class="text-xs">Use the selectors above to filter upcoming fixtures.</p>
-      </div>
-    )}
+    {
+      sport && league ? (
+        <EventsListWrapper events={events} discipline={sport} client:load />
+      ) : (
+        <div class="p-10 text-center text-muted-foreground flex flex-col items-center gap-3">
+          <svg
+            class="h-10 w-10 text-muted-foreground"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2" stroke="currentColor" stroke-width="1.5" />
+            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          <h4 class="text-sm font-medium">
+            {!sport ? "Select a discipline to begin." : "Select a league to view upcoming events."}
+          </h4>
+          <p class="text-xs">Use the selectors above to filter upcoming fixtures.</p>
+        </div>
+      )
+    }
   </div>
 </DashboardLayout>

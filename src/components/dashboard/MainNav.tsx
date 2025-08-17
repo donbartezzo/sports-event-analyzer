@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { cn } from '../../lib/utils';
+import { useState, useEffect } from "react";
+import { cn } from "../../lib/utils";
 
 const items = [
   {
@@ -21,7 +21,7 @@ const items = [
 ];
 
 export function MainNav() {
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState("");
 
   useEffect(() => {
     setPath(window.location.pathname);
@@ -35,9 +35,7 @@ export function MainNav() {
           href={item.href}
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary",
-            path === item.href
-              ? "text-primary"
-              : "text-muted-foreground"
+            path === item.href ? "text-primary" : "text-muted-foreground"
           )}
         >
           {item.title}

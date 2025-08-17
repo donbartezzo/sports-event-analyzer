@@ -1,12 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils";
 
 interface Analysis {
@@ -44,8 +37,8 @@ export function AnalysesTable({ analyses }: AnalysesTableProps) {
                     analysis.status === "completed"
                       ? "success"
                       : analysis.status === "in_progress"
-                      ? "default"
-                      : "destructive"
+                        ? "default"
+                        : "destructive"
                   }
                 >
                   {analysis.status.replace("_", " ")}

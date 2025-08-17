@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { loginSchema, type LoginFormData } from '../../lib/validations/auth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { loginSchema, type LoginFormData } from "../../lib/validations/auth";
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +24,10 @@ export default function LoginForm() {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -38,9 +38,9 @@ export default function LoginForm() {
       }
 
       // Przekierowanie na dashboard
-      window.location.href = '/dashboard';
+      window.location.href = "/dashboard";
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas logowania');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas logowania");
     } finally {
       setIsLoading(false);
     }
@@ -60,13 +60,9 @@ export default function LoginForm() {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
-              {...register('email')}
+              {...register("email")}
             />
-            {errors.email && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email && <p className="text-sm font-medium text-destructive">{errors.email.message}</p>}
           </div>
           <div className="grid gap-1">
             <Label htmlFor="password">Hasło</Label>
@@ -75,13 +71,9 @@ export default function LoginForm() {
               type="password"
               autoComplete="current-password"
               disabled={isLoading}
-              {...register('password')}
+              {...register("password")}
             />
-            {errors.password && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.password.message}
-              </p>
-            )}
+            {errors.password && <p className="text-sm font-medium text-destructive">{errors.password.message}</p>}
           </div>
           {error && (
             <Alert variant="destructive">
@@ -89,7 +81,7 @@ export default function LoginForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Logowanie...' : 'Zaloguj się'}
+            {isLoading ? "Logowanie..." : "Zaloguj się"}
           </Button>
         </div>
       </form>

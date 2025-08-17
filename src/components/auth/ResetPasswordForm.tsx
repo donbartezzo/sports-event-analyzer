@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Alert, AlertDescription } from '../ui/alert';
-import { resetPasswordSchema, type ResetPasswordFormData } from '../../lib/validations/auth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Alert, AlertDescription } from "../ui/alert";
+import { resetPasswordSchema, type ResetPasswordFormData } from "../../lib/validations/auth";
 
 export default function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null);
@@ -26,10 +26,10 @@ export default function ResetPasswordForm() {
       setError(null);
       setSuccess(null);
 
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -42,7 +42,7 @@ export default function ResetPasswordForm() {
 
       setSuccess(result.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas resetowania hasła');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas resetowania hasła");
     } finally {
       setIsLoading(false);
     }
@@ -62,13 +62,9 @@ export default function ResetPasswordForm() {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
-              {...register('email')}
+              {...register("email")}
             />
-            {errors.email && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email && <p className="text-sm font-medium text-destructive">{errors.email.message}</p>}
           </div>
           {error && (
             <Alert variant="destructive">
@@ -81,7 +77,7 @@ export default function ResetPasswordForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Wysyłanie linku...' : 'Wyślij link resetujący'}
+            {isLoading ? "Wysyłanie linku..." : "Wyślij link resetujący"}
           </Button>
         </div>
       </form>

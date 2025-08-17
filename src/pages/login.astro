@@ -1,16 +1,11 @@
 ---
-import AuthLayout from '../layouts/AuthLayout.astro';
-import LoginForm from '../components/auth/LoginForm';
+import AuthLayout from "../layouts/AuthLayout.astro";
+import LoginForm from "../components/auth/LoginForm";
 ---
 
-<AuthLayout 
-  title="Witaj ponownie"
-  description="Wprowadź swój email i hasło, aby zalogować się do konta"
->
+<AuthLayout title="Witaj ponownie" description="Wprowadź swój email i hasło, aby zalogować się do konta">
   <LoginForm client:load />
   <p class="px-8 text-center text-sm text-muted-foreground">
-    <a href="/reset-password" class="hover:text-brand underline underline-offset-4">
-      Zapomniałeś hasła?
-    </a>
+    <a href="/reset-password" class="hover:text-brand underline underline-offset-4"> Zapomniałeś hasła? </a>
   </p>
 </AuthLayout>
