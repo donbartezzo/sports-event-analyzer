@@ -56,12 +56,12 @@ export function UserNav({ initialUser }: Props) {
       });
 
       if (!response.ok) {
-        throw new Error("Błąd podczas wylogowywania");
+        throw new Error("An error occurred during logout");
       }
 
       // Przekierowanie zostanie obsłużone przez endpoint
     } catch (error) {
-      console.error("Błąd wylogowania:", error);
+      console.error("Logout error:", error);
       window.location.href = "/login";
     }
   };

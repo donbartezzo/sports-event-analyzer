@@ -75,10 +75,10 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
       if (!resp.ok) {
         if (resp.status === 409) {
           const data = await resp.json().catch(() => ({}));
-          throw new Error(data?.error || "Brak kompletnych danych do wygenerowania analizy.");
+          throw new Error(data?.error || "Insufficient data to generate analysis.");
         }
         const text = await resp.text().catch(() => "");
-        throw new Error(text || "Błąd generowania analizy. Spróbuj ponownie później.");
+        throw new Error(text || "Failed to generate analysis. Please try again later.");
       }
 
       const { data } = await resp.json();
@@ -172,7 +172,7 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                     <Button onClick={generateAnalysis} disabled={isAnalyzing}>
                       {isAnalyzing ? "Analyzing…" : "Generate New Analysis"}
                     </Button>
-                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>}
+                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analysis may take a few minutes…</p>}
                   </div>
                 </div>
               ) : (
@@ -182,7 +182,7 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                     <Button onClick={generateAnalysis} disabled={isAnalyzing}>
                       {isAnalyzing ? "Analyzing…" : "Generate Analysis"}
                     </Button>
-                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analiza może potrwać kilka minut…</p>}
+                    {isAnalyzing && <p className="text-xs text-muted-foreground">Analysis may take a few minutes…</p>}
                   </div>
                 </div>
               )}

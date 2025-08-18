@@ -39,11 +39,11 @@ try {
 // Fallback to static list if empty (robustness against API/cache issues)
 if (!disciplines || disciplines.length === 0) {
   disciplines = [
-    { id: "football", name: "Piłka nożna", code: "football" },
-    { id: "basketball", name: "Koszykówka", code: "basketball" },
-    { id: "volleyball", name: "Siatkówka", code: "volleyball" },
+    { id: "football", name: "Football", code: "football" },
+    { id: "basketball", name: "Basketball", code: "basketball" },
+    { id: "volleyball", name: "Volleyball", code: "volleyball" },
     { id: "baseball", name: "Baseball", code: "baseball" },
-    { id: "hockey", name: "Hokej", code: "hockey" },
+    { id: "hockey", name: "Hockey", code: "hockey" },
   ];
 }
 
@@ -136,7 +136,7 @@ if (sport) {
       </span>
     </div>
     <p id="league-hint" class="mt-2 text-xs text-muted-foreground" style="display: none;">
-      Brak lig dla wybranej dyscypliny.
+      No leagues available for the selected discipline.
     </p>
   </div>
   <script is:inline>

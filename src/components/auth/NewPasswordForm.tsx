@@ -40,9 +40,9 @@ export default function NewPasswordForm() {
         throw new Error(error);
       }
 
-      // Przekierowanie zostanie obsłużone przez endpoint
+      // Redirect will be handled by the endpoint
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas zmiany hasła");
+      setError(err instanceof Error ? err.message : "An error occurred while changing the password");
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +53,7 @@ export default function NewPasswordForm() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-1">
-            <Label htmlFor="password">Nowe hasło</Label>
+            <Label htmlFor="password">New password</Label>
             <Input
               id="password"
               type="password"
@@ -64,14 +64,14 @@ export default function NewPasswordForm() {
             {errors.password && <p className="text-sm font-medium text-destructive">{errors.password.message}</p>}
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
+            <Label htmlFor="confirmPassword">Confirm password</Label>
             <Input
               id="confirmPassword"
               type="password"
               autoComplete="new-password"
               disabled={isLoading}
               {...register("confirmPassword", {
-                validate: (value) => value === password || "Hasła muszą być identyczne",
+                validate: (value) => value === password || "Passwords must match",
               })}
             />
             {errors.confirmPassword && (
@@ -84,7 +84,7 @@ export default function NewPasswordForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Aktualizowanie hasła..." : "Zaktualizuj hasło"}
+            {isLoading ? "Updating password..." : "Update password"}
           </Button>
         </div>
       </form>

@@ -38,7 +38,7 @@ try {
   let resp = await fetch(baseUrl);
   if (!resp.ok) {
     const text = await resp.text().catch(() => "");
-    throw new Error(text || "Błąd pobierania wydarzenia z API.");
+    throw new Error(text || "Failed to fetch event from API.");
   }
   let payload = await resp.json().catch(() => null);
   let apiEv = payload?.data ?? null;
@@ -63,7 +63,7 @@ try {
     }
   }
   if (!apiEv) {
-    loadError = "Nie znaleziono wydarzenia.";
+    loadError = "Event not found.";
   } else {
     event = {
       id: apiEv.id,
@@ -109,7 +109,7 @@ try {
     loadError || !event ? (
       <div class="space-y-4">
         <Alert variant="destructive">
-          <AlertDescription>{loadError ?? "Nie znaleziono wydarzenia."}</AlertDescription>
+          <AlertDescription>{loadError ?? "Event not found."}</AlertDescription>
         </Alert>
         <a
           href="/events/list"

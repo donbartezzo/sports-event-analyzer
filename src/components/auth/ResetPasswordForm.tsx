@@ -42,7 +42,7 @@ export default function ResetPasswordForm() {
 
       setSuccess(result.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas resetowania hasła");
+      setError(err instanceof Error ? err.message : "An error occurred while resetting the password");
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +77,7 @@ export default function ResetPasswordForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Wysyłanie linku..." : "Wyślij link resetujący"}
+            {isLoading ? "Sending link..." : "Send reset link"}
           </Button>
         </div>
       </form>

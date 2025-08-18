@@ -37,10 +37,10 @@ export default function LoginForm() {
         throw new Error(error);
       }
 
-      // Przekierowanie na dashboard
+      // Redirect to dashboard
       window.location.href = "/dashboard";
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas logowania");
+      setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export default function LoginForm() {
             {errors.email && <p className="text-sm font-medium text-destructive">{errors.email.message}</p>}
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="password">Hasło</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -81,7 +81,7 @@ export default function LoginForm() {
             </Alert>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Logowanie..." : "Zaloguj się"}
+            {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </div>
       </form>
