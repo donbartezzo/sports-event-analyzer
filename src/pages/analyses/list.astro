@@ -3,7 +3,7 @@ import DashboardLayout from "../../layouts/DashboardLayout.astro";
 import { Button } from "@/components/ui/button";
 import { AnalysesTable } from "@/components/analyses/AnalysesTable";
 // Pobieranie danych z bazy
-const { user, supabase } = Astro.locals;
+const { supabase } = Astro.locals;
 
 let fetchError: string | null = null;
 let analyses: {
@@ -61,6 +61,13 @@ if (supabase) {
   </div>
 
   <div class="space-y-4">
+    {
+      fetchError && (
+        <div role="alert" class="text-sm text-destructive">
+          {fetchError}
+        </div>
+      )
+    }
     <div class="flex items-center justify-between">
       <div class="flex gap-2">
         <Button variant="outline" size="sm">All</Button>

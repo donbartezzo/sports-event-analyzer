@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { useSupabase } from "../../lib/hooks/useSupabase";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
@@ -38,7 +37,6 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
   const [event, setEvent] = useState(initialData);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { supabase } = useSupabase();
 
   const generateAnalysis = async () => {
     try {

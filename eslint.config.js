@@ -20,6 +20,11 @@ const baseConfig = tseslint.config({
   rules: {
     "no-console": "warn",
     "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true },
+    ],
+    "@typescript-eslint/no-namespace": ["error", { allowDeclarations: true }],
   },
 });
 
@@ -52,6 +57,8 @@ const reactConfig = tseslint.config({
   rules: {
     ...eslintPluginReactHooks.configs.recommended.rules,
     "react/react-in-jsx-scope": "off",
+    // using TypeScript types instead of prop-types
+    "react/prop-types": "off",
     "react-compiler/react-compiler": "error",
   },
 });
@@ -62,5 +69,29 @@ export default tseslint.config(
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
+  // Browser JS assets (allow DOM/fetch globals)
+  tseslint.config({
+    files: ["public/**/*.js", "src/assets/**/*.js"],
+    languageOptions: {
+      globals: {
+        window: true,
+        document: true,
+        URL: true,
+        fetch: true,
+        URLSearchParams: true,
+      },
+    },
+    rules: {
+      "no-undef": "off",
+    },
+  }),
+  // Test file overrides
+  tseslint.config({
+    files: ["**/*.{test,spec}.{ts,tsx}", "tests/**/*.{ts,tsx}", "src/**/__tests__/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  }),
   eslintPluginPrettier
 );

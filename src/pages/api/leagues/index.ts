@@ -13,29 +13,9 @@ interface CacheEntry {
 const CACHE = new Map<string, CacheEntry>();
 const now = () => Date.now();
 
-const ApiFootballLeagueSchema = z.object({
-  league: z.object({ id: z.number(), name: z.string(), type: z.string().optional() }),
-  country: z.object({ name: z.string().nullable().optional() }).optional(),
-  seasons: z.array(z.object({ year: z.number(), current: z.boolean().optional() })).optional(),
-});
+// Note: dedicated football schemas removed to avoid unused vars; we validate fields inline below.
 
-const ApiFootballResponseSchema = z.object({ response: z.array(ApiFootballLeagueSchema) });
-
-// Generic API-Sports schema (accept common variants and string ids)
-const ApiSportsLeagueNested = z.object({
-  league: z.object({ id: z.union([z.number(), z.string()]), name: z.string(), type: z.string().optional() }),
-  country: z.object({ name: z.string().nullable().optional() }).optional(),
-});
-const ApiSportsLeagueFlat = z.object({
-  id: z.union([z.number(), z.string()]),
-  name: z.string(),
-  country: z
-    .union([z.string(), z.object({ name: z.string().nullable().optional() })])
-    .nullable()
-    .optional(),
-  type: z.string().optional(),
-});
-const ApiSportsResponseSchema = z.object({ response: z.array(z.union([ApiSportsLeagueNested, ApiSportsLeagueFlat])) });
+// Note: generic API-Sports schemas removed; validate downstream responses inline
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -89,12 +69,8 @@ export const GET: APIRoute = async ({ request }) => {
       const arr: unknown[] = Array.isArray((json as { response?: unknown[] } | null)?.response)
         ? ((json as { response: unknown[] }).response as unknown[])
         : [];
-      if (
-        !arr.length &&
-        (json as { errors?: unknown[] } | null)?.errors &&
-        Array.isArray((json as { errors?: unknown[] }).errors) &&
-        (json as { errors: unknown[] }).errors!.length
-      ) {
+      const errs = (json as { errors?: unknown[] } | null)?.errors;
+      if (!arr.length && Array.isArray(errs) && errs.length > 0) {
         // Upstream returned explicit errors
         return new Response(JSON.stringify({ error: "Upstream error payload", upstreamRaw: json }), { status: 502 });
       }
@@ -169,7 +145,17 @@ export const GET: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: "Upstream error", status: resp.status, body }), { status: 502 });
     }
     const json = await resp.json();
-    const parsed = ApiFootballResponseSchema.safeParse(json);
+    const parsed = z
+      .object({
+        response: z.array(
+          z.object({
+            league: z.object({ id: z.number(), name: z.string(), type: z.string().optional() }),
+            country: z.object({ name: z.string().nullable().optional() }).optional(),
+            seasons: z.array(z.object({ year: z.number(), current: z.boolean().optional() })).optional(),
+          })
+        ),
+      })
+      .safeParse(json);
     if (!parsed.success) {
       return new Response(JSON.stringify({ error: "Unexpected upstream payload", details: parsed.error.flatten() }), {
         status: 502,

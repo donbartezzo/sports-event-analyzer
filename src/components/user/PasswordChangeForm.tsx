@@ -26,7 +26,8 @@ interface Props {
   initialUser: User;
 }
 
-export function PasswordChangeForm({ initialUser }: Props) {
+export function PasswordChangeForm(_: Props) {
+  void _; // mark unused prop as intentionally ignored
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);

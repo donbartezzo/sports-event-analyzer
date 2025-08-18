@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
-import type { CreateAnalysisCommand, AnalysisDTO, PaginationParams } from "../../types";
+import type { PaginationParams } from "../../types";
 import { AnalysisService } from "../../lib/services/analysis.service";
 import { ValidationError } from "../../lib/errors/validation.error";
 import { DatabaseError } from "../../lib/errors/database.error";

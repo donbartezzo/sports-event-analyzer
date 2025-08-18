@@ -13,8 +13,8 @@ export const EventsListWrapper = ({ events, discipline }: EventsListWrapperProps
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    // If we already have SSR-provided events, do nothing
-    if (data && data.length > 0) return;
+    // If we already have SSR-provided events via props, do nothing
+    if (events && events.length > 0) return;
 
     // Read parameters from the URL
     const url = new URL(window.location.href);
@@ -57,10 +57,7 @@ export const EventsListWrapper = ({ events, discipline }: EventsListWrapperProps
     return () => {
       controller.abort();
     };
-    // Run this effect only once after mount; changing sport/league triggers a full page reload anyway
-    // (see navigation in list.astro)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [events]);
 
   return <EventsList events={data} isLoading={loading} error={error} discipline={discipline} />;
 };

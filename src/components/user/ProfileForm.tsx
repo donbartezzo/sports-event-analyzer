@@ -59,7 +59,7 @@ export function ProfileForm({ initialUser }: Props) {
     };
 
     loadProfile();
-  }, [supabase, setValue]);
+  }, [supabase, setValue, initialUser]);
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
