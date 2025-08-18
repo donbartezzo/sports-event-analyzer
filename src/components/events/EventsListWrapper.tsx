@@ -44,7 +44,11 @@ export const EventsListWrapper = ({ events, discipline }: EventsListWrapperProps
         setData(Array.isArray(json?.data) ? json.data : []);
       } catch (err) {
         if ((err as { name?: string } | null)?.name === "AbortError") return;
-        setError((err as { message?: unknown } | null)?.message ? String((err as { message?: unknown }).message) : "Failed to fetch events");
+        setError(
+          (err as { message?: unknown } | null)?.message
+            ? String((err as { message?: unknown }).message)
+            : "Failed to fetch events"
+        );
       } finally {
         setLoading(false);
       }

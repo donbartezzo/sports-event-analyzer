@@ -21,5 +21,10 @@ CI/CD i Hosting:
 
 Testy:
 - Testy jednostkowe: Vitest, @testing-library/react, @testing-library/dom, astro/test
+  - Konfiguracja: `vitest.config.ts` (środowisko `jsdom`, globalne asercje, setup: `tests/setup/vitest.setup.ts`)
+  - Uruchamianie: `npm run test:unit` (pokrycie: `npm run test:coverage`)
 - Testy E2E: Playwright (UI + API)
+  - Konfiguracja: `playwright.config.ts` (uruchamia dev server automatycznie)
+  - Pierwsze uruchomienie: `npx playwright install`
+  - Uruchamianie: `npm run test:e2e` (tryb UI: `npm run test:e2e:ui`)
 - Dodatkowo: MSW (mocki API/AI), ESLint, Prettier, TypeScript (`tsc --noEmit`), axe-core/Lighthouse (a11y), k6/Artillery (wydajność)

@@ -48,8 +48,13 @@ This project supports the following team sports (MVP+):
   - Vitest (test runner)
   - @testing-library/react, @testing-library/dom (component and DOM testing)
   - astro/test (Astro component testing)
+  - Config: `vitest.config.ts` (jsdom, globals, setup: `tests/setup/vitest.setup.ts`)
+  - Run: `npm run test:unit` (coverage: `npm run test:coverage`)
 - **End-to-End (E2E)**:
   - Playwright (UI + API flows)
+  - Config: `playwright.config.ts` (starts dev server automatically)
+  - First-time setup: `npx playwright install`
+  - Run: `npm run test:e2e` (UI mode: `npm run test:e2e:ui`)
 
 Additional (used across tests):
 - MSW (mocks for API/AI integrations)

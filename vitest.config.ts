@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
   test: {
@@ -8,6 +9,11 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     coverage: {
       reporter: ["text", "html"],
+    },
+  },
+  resolve: {
+    alias: {
+      "astro:middleware": path.resolve(__dirname, "tests/shims/astro-middleware.ts"),
     },
   },
 });

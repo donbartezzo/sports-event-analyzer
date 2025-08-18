@@ -100,7 +100,9 @@ try {
     }
   }
 } catch (err) {
-  loadError = (err as { message?: unknown } | null)?.message ? String((err as { message?: unknown }).message) : String(err);
+  loadError = (err as { message?: unknown } | null)?.message
+    ? String((err as { message?: unknown }).message)
+    : String(err);
 }
 ---
 

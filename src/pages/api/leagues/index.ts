@@ -89,13 +89,23 @@ export const GET: APIRoute = async ({ request }) => {
       const arr: unknown[] = Array.isArray((json as { response?: unknown[] } | null)?.response)
         ? ((json as { response: unknown[] }).response as unknown[])
         : [];
-      if (!arr.length && (json as { errors?: unknown[] } | null)?.errors && Array.isArray((json as { errors?: unknown[] }).errors) && (json as { errors: unknown[] }).errors!.length) {
+      if (
+        !arr.length &&
+        (json as { errors?: unknown[] } | null)?.errors &&
+        Array.isArray((json as { errors?: unknown[] }).errors) &&
+        (json as { errors: unknown[] }).errors!.length
+      ) {
         // Upstream returned explicit errors
         return new Response(JSON.stringify({ error: "Upstream error payload", upstreamRaw: json }), { status: 502 });
       }
       const leagues: League[] = arr
         .map((r) => {
-          if (r && typeof r === "object" && "league" in (r as Record<string, unknown>) && (r as Record<string, unknown>).league) {
+          if (
+            r &&
+            typeof r === "object" &&
+            "league" in (r as Record<string, unknown>) &&
+            (r as Record<string, unknown>).league
+          ) {
             const l = (r as { league: unknown }).league as Record<string, unknown>;
             const type = String((l?.type as string | undefined) ?? "").toLowerCase();
             if (type && type !== "league") return null;
@@ -118,7 +128,7 @@ export const GET: APIRoute = async ({ request }) => {
           const countryName =
             typeof countryVal === "string"
               ? countryVal || null
-              : (countryVal as { name?: string | null } | null | undefined)?.name ?? null;
+              : ((countryVal as { name?: string | null } | null | undefined)?.name ?? null);
           return {
             id: idNum,
             name: String(((r as Record<string, unknown>)?.name as string | undefined) ?? "").trim(),

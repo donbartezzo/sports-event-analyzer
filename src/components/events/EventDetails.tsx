@@ -159,7 +159,7 @@ export function EventDetails({ eventId, initialData }: EventDetailsProps) {
                       <p className="text-sm font-medium">Last Analysis</p>
                       <p className="text-sm text-muted-foreground">
                         {(() => {
-                          const val = (event.lastAnalysis?.finished_at ?? event.lastAnalysis?.date) ?? null;
+                          const val = event.lastAnalysis?.finished_at ?? event.lastAnalysis?.date ?? null;
                           if (!val) return "—";
                           const d = new Date(val);
                           return isNaN(d.getTime()) ? "—" : format(d, "PPP");

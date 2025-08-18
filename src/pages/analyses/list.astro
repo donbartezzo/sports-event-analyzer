@@ -27,9 +27,10 @@ if (supabase) {
       const status: "completed" | "in_progress" | "failed" =
         rawStatus === "completed" ? "completed" : rawStatus === "pending" ? "in_progress" : "failed";
       const summary = (row as { content_json?: { summary?: unknown } | null })?.content_json?.summary;
-      const title = typeof summary === "string" && summary
-        ? summary.split("\n")[0].slice(0, 120)
-        : `Analysis for event ${(row as { event_id?: string | number }).event_id}`;
+      const title =
+        typeof summary === "string" && summary
+          ? summary.split("\n")[0].slice(0, 120)
+          : `Analysis for event ${(row as { event_id?: string | number }).event_id}`;
       return {
         id: String((row as { id: string | number }).id),
         title,
@@ -39,7 +40,9 @@ if (supabase) {
       };
     });
   } catch (err) {
-    fetchError = (err as { message?: unknown } | null)?.message ? String((err as { message?: unknown }).message) : String(err);
+    fetchError = (err as { message?: unknown } | null)?.message
+      ? String((err as { message?: unknown }).message)
+      : String(err);
   }
 } else {
   fetchError = "Supabase client not available";
