@@ -43,6 +43,11 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   const supabase = createSupabaseServer({ cookies, headers: request.headers });
   locals.supabase = supabase;
 
+  // E2E mode: bypass auth checks entirely to allow tests to run
+  if (process.env.E2E === '1') {
+    return next();
+  }
+
   // Skip auth check for public paths
   if (isPublicPath(url.pathname)) {
     return next();

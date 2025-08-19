@@ -1,7 +1,18 @@
-import { defineConfig, devices } from "@playwright/test";
+// CommonJS Playwright config to avoid ESM loader issues in environments running older Node.
+// Ensure TS test files are loadable by Node via esbuild-register.
+try {
+  require('esbuild-register/dist/node').register({ target: 'es2020' });
+} catch (_) {
+  // If not installed, Playwright may still handle TS; we add as safety net.
+}
+// Prefer using Node >= 18.19.0. This file is a compatibility fallback.
 
-export default defineConfig({
+const { devices } = require("@playwright/test");
+
+/** @type {import('@playwright/test').PlaywrightTestConfig} */
+module.exports = {
   testDir: "./tests/e2e",
+  testMatch: /.*\.spec\.ts$/,
   timeout: 30 * 1000,
   retries: 0,
   use: {
@@ -25,4 +36,4 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-});
+};
