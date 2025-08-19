@@ -17,7 +17,7 @@ export default defineConfig({
     url: "http://127.0.0.1:4321",
     reuseExistingServer: true,
     timeout: process.env.CI ? 120_000 : 90_000,
-    env: { E2E: '1', NODE_ENV: process.env.CI ? 'production' : 'development' },
+    env: { E2E: "1", NODE_ENV: process.env.CI ? "production" : "development" },
   },
   projects: [
     {

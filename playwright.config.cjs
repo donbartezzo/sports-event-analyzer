@@ -1,8 +1,11 @@
+/* eslint-env node */
+/* global require, module, process */
+/* eslint-disable @typescript-eslint/no-require-imports */
 // CommonJS Playwright config to avoid ESM loader issues in environments running older Node.
 // Ensure TS test files are loadable by Node via esbuild-register.
 try {
-  require('esbuild-register/dist/node').register({ target: 'es2020' });
-} catch (_) {
+  require("esbuild-register/dist/node").register({ target: "es2020" });
+} catch {
   // If not installed, Playwright may still handle TS; we add as safety net.
 }
 // Prefer using Node >= 18.19.0. This file is a compatibility fallback.
@@ -28,7 +31,7 @@ module.exports = {
     url: "http://127.0.0.1:4321",
     reuseExistingServer: true,
     timeout: process.env.CI ? 120_000 : 90_000,
-    env: { E2E: '1', NODE_ENV: process.env.CI ? 'production' : 'development' },
+    env: { E2E: "1", NODE_ENV: process.env.CI ? "production" : "development" },
   },
   projects: [
     {
