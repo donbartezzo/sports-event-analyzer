@@ -31,7 +31,13 @@ module.exports = {
     url: "http://127.0.0.1:4321",
     reuseExistingServer: true,
     timeout: process.env.CI ? 120_000 : 90_000,
-    env: { E2E: "1", NODE_ENV: process.env.CI ? "production" : "development" },
+    env: {
+      E2E: "1",
+      NODE_ENV: process.env.CI ? "production" : "development",
+      // Provide dummy Supabase envs for CI/e2e to avoid server startup errors
+      PUBLIC_SUPABASE_URL: process.env.PUBLIC_SUPABASE_URL || "http://localhost",
+      PUBLIC_SUPABASE_ANON_KEY: process.env.PUBLIC_SUPABASE_ANON_KEY || "test",
+    },
   },
   projects: [
     {

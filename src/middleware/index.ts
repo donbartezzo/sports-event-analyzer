@@ -39,14 +39,14 @@ function isPublicPath(pathname: string) {
 }
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // Always create and attach Supabase client for downstream usage (also on public paths)
-  const supabase = createSupabaseServer({ cookies, headers: request.headers });
-  locals.supabase = supabase;
-
-  // E2E mode: bypass auth checks entirely to allow tests to run
+  // E2E mode: bypass Supabase initialization and all auth checks to allow tests to run without secrets
   if (process.env.E2E === "1") {
     return next();
   }
+
+  // Always create and attach Supabase client for downstream usage (also on public paths)
+  const supabase = createSupabaseServer({ cookies, headers: request.headers });
+  locals.supabase = supabase;
 
   // Skip auth check for public paths
   if (isPublicPath(url.pathname)) {
