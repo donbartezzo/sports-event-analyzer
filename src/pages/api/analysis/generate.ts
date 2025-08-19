@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import crypto from "node:crypto";
+import { logger } from "@/lib/logger";
 
 // Simple discipline guard for MVP
 const SUPPORTED_DISCIPLINES = new Set(["football", "basketball", "volleyball", "baseball", "hockey"]);
@@ -234,7 +235,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const prompt = buildPrompt(discipline, snapshot);
     // Debug: log prompt to server console (dev only)
     try {
-      console.debug("[analysis] groq prompt:", prompt);
+      logger.debug("[analysis] groq prompt:", { prompt });
     } catch {
       // ignore: console may be unavailable in some environments
     }

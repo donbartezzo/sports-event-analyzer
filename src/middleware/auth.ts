@@ -1,4 +1,5 @@
 import type { MiddlewareHandler, APIContext, MiddlewareNext } from "astro";
+import { logger } from "@/lib/logger";
 
 export const authMiddleware: MiddlewareHandler = async (
   { request, locals }: APIContext,
@@ -45,7 +46,7 @@ export const authMiddleware: MiddlewareHandler = async (
 
     return await next();
   } catch (error) {
-    console.error("Authentication error:", error);
+    logger.error("Authentication error", error instanceof Error ? error : undefined);
 
     return new Response(
       JSON.stringify({

@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServer } from "../lib/supabase/server";
+import { logger } from "@/lib/logger";
 import type { User } from "@supabase/supabase-js";
 
 // Type declaration for user in locals
@@ -54,7 +55,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   } = await supabase.auth.getUser();
 
   if (error) {
-    console.error("Auth error:", error.message);
+    logger.error("Auth error", error);
     return redirect("/login");
   }
 

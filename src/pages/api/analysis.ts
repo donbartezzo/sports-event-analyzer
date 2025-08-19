@@ -4,6 +4,7 @@ import type { PaginationParams } from "../../types";
 import { AnalysisService } from "../../lib/services/analysis.service";
 import { ValidationError } from "../../lib/errors/validation.error";
 import { DatabaseError } from "../../lib/errors/database.error";
+import { logger } from "@/lib/logger";
 
 // Schema walidacji query params dla GET
 const getAnalysesQuerySchema = z.object({
@@ -59,7 +60,7 @@ export const get: APIRoute = async ({ url, locals }) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error", error instanceof Error ? error : undefined);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };
@@ -132,7 +133,7 @@ export const post: APIRoute = async ({ request, locals }) => {
       throw error;
     }
   } catch (error) {
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error", error instanceof Error ? error : undefined);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };

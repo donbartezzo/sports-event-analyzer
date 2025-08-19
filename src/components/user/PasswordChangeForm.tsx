@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import type { User } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 const passwordChangeSchema = z
   .object({
@@ -57,7 +58,7 @@ export function PasswordChangeForm(_: Props) {
       setStatus("success");
       reset(); // Clear form
     } catch (err) {
-      console.error("Error changing password:", err);
+      logger.error("Error changing password", err instanceof Error ? err : undefined);
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Failed to change password");
     } finally {

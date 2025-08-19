@@ -12,6 +12,7 @@ import { profileSchema, type ProfileFormData } from "@/lib/validations/profile";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import type { Database } from "@/types/database";
 import type { User } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 interface Props {
   initialUser: User;
@@ -82,7 +83,7 @@ export function ProfileForm({ initialUser }: Props) {
       if (error) throw error;
       setStatus("success");
     } catch (err) {
-      console.error("Error updating profile:", err);
+      logger.error("Error updating profile", err instanceof Error ? err : undefined);
       setStatus("error");
     } finally {
       setIsLoading(false);

@@ -4,6 +4,7 @@ import type { UpdateAnalysisCommand } from "../../../types";
 import { AnalysisService } from "../../../lib/services/analysis.service";
 import { ValidationError } from "../../../lib/errors/validation.error";
 import { DatabaseError } from "../../../lib/errors/database.error";
+import { logger } from "@/lib/logger";
 
 // Schema walidacji parametrów URL
 const paramsSchema = z.object({
@@ -48,7 +49,7 @@ export const get: APIRoute = async ({ params, locals }) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error", error instanceof Error ? error : undefined);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };
@@ -97,7 +98,7 @@ export const put: APIRoute = async ({ request, params, locals }) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error", error instanceof Error ? error : undefined);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };
@@ -127,7 +128,7 @@ export const del: APIRoute = async ({ params, locals }) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 
-    console.error("Unexpected error:", error);
+    logger.error("Unexpected error", error instanceof Error ? error : undefined);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 };

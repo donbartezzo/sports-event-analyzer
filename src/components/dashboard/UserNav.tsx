@@ -10,6 +10,7 @@ import {
 import { Button } from "../../components/ui/button";
 import { useSupabase } from "../../lib/hooks/useSupabase";
 import type { User } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 interface Props {
   initialUser: User;
@@ -61,7 +62,7 @@ export function UserNav({ initialUser }: Props) {
 
       // Przekierowanie zostanie obsłużone przez endpoint
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error", error instanceof Error ? error : undefined);
       window.location.href = "/login";
     }
   };

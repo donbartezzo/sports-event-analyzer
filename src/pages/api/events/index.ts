@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { Event } from "../../../types";
 import { apiSportsFetch } from "../../../lib/api-sports";
+import { logger } from "@/lib/logger";
 
 export const prerender = false;
 
@@ -294,16 +295,15 @@ export const GET: APIRoute = async ({ request }) => {
     try {
       const rlRem = resp.headers.get("x-ratelimit-remaining");
       const rlDay = resp.headers.get("x-ratelimit-requests-remaining");
-      console.log(
-        "[api/events] league=%s season=%s strategy=%s count=%d query=%s rlRem=%s rlDay=%s",
+      logger.info("[api/events] fetch summary", {
         league,
-        season ?? currentYear,
-        usedStrategy,
-        events.length,
-        usedQuery,
-        String(rlRem),
-        String(rlDay)
-      );
+        season: season ?? currentYear,
+        strategy: usedStrategy,
+        count: events.length,
+        query: usedQuery,
+        rlRem: String(rlRem),
+        rlDay: String(rlDay),
+      });
     } catch {
       // ignore: console logging may be unavailable
     }
